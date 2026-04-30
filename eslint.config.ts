@@ -22,5 +22,14 @@ export default defineConfigWithVueTs(
 
   ...pluginOxlint.buildFromOxlintConfigFile('.oxlintrc.json'),
 
+  // Pug 模板無法被 @typescript-eslint/no-unused-vars 正確解析，
+  // 導致 <script setup> 中實際被模板使用的變數被誤報為未使用
+  {
+    files: ['**/*.vue'],
+    rules: {
+      '@typescript-eslint/no-unused-vars': 'off',
+    },
+  },
+
   skipFormatting,
 )
