@@ -1,6 +1,11 @@
 import { globalIgnores } from 'eslint/config'
-import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
+import {
+  defineConfigWithVueTs,
+  vueTsConfigs,
+} from '@vue/eslint-config-typescript'
 import pluginVue from 'eslint-plugin-vue'
+// @ts-expect-error - eslint-plugin-vue-pug 尚無型別宣告
+import pluginVuePug from 'eslint-plugin-vue-pug'
 import skipFormatting from 'eslint-config-prettier/flat'
 
 // To allow more languages other than `ts` in `.vue` files, uncomment the following lines:
@@ -17,6 +22,7 @@ export default defineConfigWithVueTs(
   globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**']),
 
   ...pluginVue.configs['flat/essential'],
+  ...pluginVuePug.configs['flat/recommended'],
   vueTsConfigs.recommended,
 
   // Pug 模板無法被 @typescript-eslint/no-unused-vars 正確解析，
@@ -24,7 +30,14 @@ export default defineConfigWithVueTs(
   {
     files: ['**/*.vue'],
     rules: {
-      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          varsIgnorePattern: '^_',
+          argsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^_',
+        },
+      ],
     },
   },
 
