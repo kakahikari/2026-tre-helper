@@ -1,1 +1,5 @@
 @import 'tailwindcss';
+
+@utility font-serif-tc {
+  font-family: 'Noto Serif TC', serif;
+}
