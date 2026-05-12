@@ -19,7 +19,7 @@
 
 <template lang="pug">
 main(
-  class='font-serif-tc flex min-h-[calc(100svh-3.5rem)] flex-col items-center justify-center gap-9 px-6 py-12'
+  class='font-serif-tc flex min-h-screen flex-col items-center justify-center gap-9 bg-black px-6 py-12 text-white'
 )
   //- 活動主體
   section(class='flex flex-col items-center gap-[0.6rem] text-center')

@@ -1,30 +1,46 @@
 import { fileURLToPath, URL } from 'node:url'
-import { readFileSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 
 import { defineConfig, type Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import tailwindcss from '@tailwindcss/vite'
 
-// 建置後生成 dist/discount.html，讓 GitHub Pages 能正確回應 /discount 路由
-// noindex 在 index.html 中，此處複製時替換為 canonical，讓爬蟲只索引 /discount
+function injectGoogleAnalytics(): Plugin {
+  const googleAnalyticsId = process.env.VITE_GOOGLE_ANALYTICS_ID?.trim()
+  const googleAnalyticsTag = googleAnalyticsId
+    ? `    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+
+      gtag('config', '${googleAnalyticsId}')
+    </script>`
+    : ''
+
+  return {
+    name: 'inject-google-analytics',
+    transformIndexHtml(html) {
+      return html.replace('<!-- GOOGLE_ANALYTICS_TAG -->', googleAnalyticsTag)
+    },
+  }
+}
+
+// 建置後補出 dist/discount/index.html，讓靜態部署可直接命中 /discount
 function generateDiscountRoute(): Plugin {
   return {
     name: 'generate-discount-route',
     apply: 'build',
     closeBundle() {
       const dist = fileURLToPath(new URL('./dist', import.meta.url))
-      const html = readFileSync(`${dist}/index.html`, 'utf-8')
+      const html = readFileSync(`${dist}/discount.html`, 'utf-8')
 
-      const CANONICAL =
-        '<link rel="canonical" href="https://kakahikari.github.io/2026-tre-helper/discount" />'
-
-      // 移除 noindex、插入 canonical
-      const discountHtml = html
-        .replace(/\s*<meta name="robots"[^>]*\/>/i, '')
-        .replace('<!-- Open Graph -->', `${CANONICAL}\n    <!-- Open Graph -->`)
-
-      writeFileSync(`${dist}/discount.html`, discountHtml)
+      mkdirSync(`${dist}/discount`, { recursive: true })
+      writeFileSync(`${dist}/discount/index.html`, html)
     },
   }
 }
@@ -32,7 +48,21 @@ function generateDiscountRoute(): Plugin {
 // https://vite.dev/config/
 export default defineConfig({
   base: '/2026-tre-helper/',
-  plugins: [vue(), vueDevTools(), tailwindcss(), generateDiscountRoute()],
+  plugins: [
+    vue(),
+    vueDevTools(),
+    tailwindcss(),
+    injectGoogleAnalytics(),
+    generateDiscountRoute(),
+  ],
+  build: {
+    rollupOptions: {
+      input: {
+        main: fileURLToPath(new URL('./index.html', import.meta.url)),
+        discount: fileURLToPath(new URL('./discount.html', import.meta.url)),
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
