@@ -46,6 +46,25 @@ pnpm preview      # 預覽打包結果
 - 除非有明確理由，否則一律優先使用 Tailwind CSS
 - 只有在 Tailwind 不適合處理該樣式需求時，才可改用元件內 `scoped` CSS
 
+## Icon 使用方式
+
+- 不安裝額外 icon 套件，直接將 SVG 以字串常數定義在元件的 `<script setup>` 中
+- 使用 `v-html` 渲染到 `<span>` 上，SVG 需設定 `width`、`height`、`viewBox` 屬性
+- 樣式使用 `currentColor`（`stroke` 或 `fill`），讓 icon 顏色跟隨父元素文字色
+- 只適用於 hardcoded、可信任的 SVG 字串，不可用於動態或使用者輸入的內容
+
+```ts
+const ticketIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round" stroke-linejoin="round">
+  <path d="..."/>
+</svg>`
+```
+
+```pug
+span(v-html='icon')
+```
+
 ## 部署注意事項
 
 - Vite `base` 目前設定為 `/2026-tre-helper/`
