@@ -12,6 +12,7 @@
 | 模板語言 | Pug             |
 | 樣式     | Tailwind CSS v4 |
 | 套件管理 | pnpm            |
+| 工具函式 | VueUse          |
 
 ## 套件管理
 
@@ -63,6 +64,24 @@ const ticketIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="2
 
 ```pug
 span(v-html='icon')
+```
+
+## Composables
+
+- 放在 `src/composables/` 目錄下，以 `use` 開頭命名（e.g. `useFavorites.ts`）
+- 需要跨元件共享的狀態，在模組層級（module-level）宣告 ref，函式內直接操作，所有呼叫端共享同一個實例
+- 本地持久化優先使用 VueUse 的 `useLocalStorage`，不直接操作 `window.localStorage`
+
+```ts
+import { useLocalStorage } from '@vueuse/core'
+
+// module-level singleton
+const state = useLocalStorage<T>('storage-key', defaultValue)
+
+export function useMyComposable() {
+  // ...
+  return { state }
+}
 ```
 
 ## 部署注意事項
