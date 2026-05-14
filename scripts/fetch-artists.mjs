@@ -14,21 +14,25 @@ const COLLECTION_ID = 4 // 2026 TRE collection page ID
 const HEADERS = {
   'content-type': 'application/grpc-web+proto',
   'x-grpc-web': '1',
-  'origin': 'https://jkface.net',
-  'referer': 'https://jkface.net/',
+  origin: 'https://jkface.net',
+  referer: 'https://jkface.net/',
 }
 
 // ── protobuf helpers ────────────────────────────────────────────────────────
 
 function encodeVarint(n) {
   const b = []
-  while (n > 0x7f) { b.push((n & 0x7f) | 0x80); n >>>= 7 }
+  while (n > 0x7f) {
+    b.push((n & 0x7f) | 0x80)
+    n >>>= 7
+  }
   b.push(n)
   return b
 }
 
 function readVarint(buf, pos) {
-  let val = 0, shift = 0
+  let val = 0,
+    shift = 0
   while (true) {
     const b = buf[pos++]
     val |= (b & 0x7f) << shift
@@ -42,7 +46,10 @@ function grpcFrame(msgBytes) {
   const len = msgBytes.length
   return new Uint8Array([
     0x00,
-    (len >> 24) & 0xff, (len >> 16) & 0xff, (len >> 8) & 0xff, len & 0xff,
+    (len >> 24) & 0xff,
+    (len >> 16) & 0xff,
+    (len >> 8) & 0xff,
+    len & 0xff,
     ...msgBytes,
   ])
 }
@@ -52,9 +59,14 @@ function grpcFrame(msgBytes) {
 async function fetchLineupIds() {
   // request: { field1: COLLECTION_ID }
   const body = grpcFrame([0x08, ...encodeVarint(COLLECTION_ID)])
-  const resp = await fetch(`${GAPI}/face.v2.ActivityService/GetCollectionPageInfo`, {
-    method: 'POST', headers: HEADERS, body,
-  })
+  const resp = await fetch(
+    `${GAPI}/face.v2.ActivityService/GetCollectionPageInfo`,
+    {
+      method: 'POST',
+      headers: HEADERS,
+      body,
+    },
+  )
   const buf = new Uint8Array(await resp.arrayBuffer())
 
   // 在整個 response 中搜尋所有 field 19 (tag = 9a 01, wire type 2 = LEN)，
@@ -74,13 +86,18 @@ async function fetchLineupIds() {
     let valid = true
     while (pos < dataEnd) {
       const r = readVarint(buf, pos)
-      if (r.val < 100 || r.val > 5000) { valid = false; break }
+      if (r.val < 100 || r.val > 5000) {
+        valid = false
+        break
+      }
       ids.push(r.val)
       pos = r.pos
     }
     if (valid && ids.length >= 3) return ids
   }
-  throw new Error('Field 19 (lineup IDs) not found in GetCollectionPageInfo response')
+  throw new Error(
+    'Field 19 (lineup IDs) not found in GetCollectionPageInfo response',
+  )
 }
 
 // ── Step 2: GetCollectionPageLineupInfo → artists ───────────────────────────
@@ -91,9 +108,14 @@ async function fetchArtists(lineupIds) {
   const f2 = [0x12, ...encodeVarint(idBytes.length), ...idBytes]
   const body = grpcFrame([...f1, ...f2])
 
-  const resp = await fetch(`${GAPI}/face.v2.ActivityService/GetCollectionPageLineupInfo`, {
-    method: 'POST', headers: HEADERS, body,
-  })
+  const resp = await fetch(
+    `${GAPI}/face.v2.ActivityService/GetCollectionPageLineupInfo`,
+    {
+      method: 'POST',
+      headers: HEADERS,
+      body,
+    },
+  )
   const buf = new Uint8Array(await resp.arrayBuffer())
 
   // 解析 response：每個 field 1 = 一筆 lineup item
@@ -103,12 +125,14 @@ async function fetchArtists(lineupIds) {
   while (pos < buf.length) {
     if (buf[pos] === 0x80) break
 
-    const tr = readVarint(buf, pos); pos = tr.pos
+    const tr = readVarint(buf, pos)
+    pos = tr.pos
     const wireType = tr.val & 7
     const fieldNum = tr.val >> 3
 
     if (wireType === 2) {
-      const lr = readVarint(buf, pos); pos = lr.pos
+      const lr = readVarint(buf, pos)
+      pos = lr.pos
       const item = buf.slice(pos, pos + lr.val)
       pos += lr.val
 
@@ -117,27 +141,32 @@ async function fetchArtists(lineupIds) {
         if (artist) artists.push(artist)
       }
     } else if (wireType === 0) {
-      const r = readVarint(buf, pos); pos = r.pos
+      const r = readVarint(buf, pos)
+      pos = r.pos
     } else break
   }
   return artists
 }
 
 function parseLineupItem(buf) {
-  let name = '', profileUrl = ''
+  let name = '',
+    profileUrl = ''
   let pos = 0
   while (pos < buf.length) {
-    const tr = readVarint(buf, pos); pos = tr.pos
+    const tr = readVarint(buf, pos)
+    pos = tr.pos
     const wireType = tr.val & 7
     const fieldNum = tr.val >> 3
 
     if (wireType === 0) {
-      const r = readVarint(buf, pos); pos = r.pos
+      const r = readVarint(buf, pos)
+      pos = r.pos
     } else if (wireType === 2) {
-      const lr = readVarint(buf, pos); pos = lr.pos
+      const lr = readVarint(buf, pos)
+      pos = lr.pos
       const text = Buffer.from(buf.slice(pos, pos + lr.val)).toString('utf8')
       pos += lr.val
-      if (fieldNum === 6) name = text       // 名稱
+      if (fieldNum === 6) name = text // 名稱
       if (fieldNum === 10) profileUrl = text // profile URL
     } else if (wireType === 5) {
       pos += 4

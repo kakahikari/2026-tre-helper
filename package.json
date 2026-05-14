@@ -10,7 +10,7 @@
     "fetch-artists": "node scripts/fetch-artists.mjs",
     "lint": "npm-run-all --aggregate-output -lnp lint:*",
     "lint:eslint": "eslint . --fix --cache",
-    "lint:format": "prettier --write --experimental-cli src/",
+    "lint:format": "prettier --write --experimental-cli .",
     "lint:sort-package-json": "sort-package-json",
     "preview": "vite preview",
     "type-check": "vue-tsc --build"

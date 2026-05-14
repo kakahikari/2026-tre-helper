@@ -5,7 +5,8 @@
 
 /** 讀取 protobuf varint，回傳 { val, pos }（pos 指向 varint 結束後的下一個位置） */
 export function readVarint(buf, pos) {
-  let val = 0, shift = 0
+  let val = 0,
+    shift = 0
   while (true) {
     const b = buf[pos++]
     val |= (b & 0x7f) << shift
@@ -18,7 +19,10 @@ export function readVarint(buf, pos) {
 /** 將數字編碼為 protobuf varint bytes array */
 export function encodeVarint(n) {
   const b = []
-  while (n > 0x7f) { b.push((n & 0x7f) | 0x80); n >>>= 7 }
+  while (n > 0x7f) {
+    b.push((n & 0x7f) | 0x80)
+    n >>>= 7
+  }
   b.push(n)
   return b
 }
@@ -66,7 +70,10 @@ export function findPackedField(buf, tagBytes, validator, minCount = 3) {
     let valid = true
     while (pos < dataEnd) {
       const r = readVarint(buf, pos)
-      if (!validator(r.val)) { valid = false; break }
+      if (!validator(r.val)) {
+        valid = false
+        break
+      }
       ids.push(r.val)
       pos = r.pos
     }
@@ -98,17 +105,25 @@ export function readString(buf, pos) {
 export function parseMessage(buf, startPos, endPos, onField) {
   let pos = startPos
   while (pos < endPos) {
-    if (buf[pos] === 0x80) break  // gRPC trailer frame
-    const tr = readVarint(buf, pos); pos = tr.pos
-    const wt = tr.val & 7, fn = tr.val >> 3
+    if (buf[pos] === 0x80) break // gRPC trailer frame
+    const tr = readVarint(buf, pos)
+    pos = tr.pos
+    const wt = tr.val & 7,
+      fn = tr.val >> 3
     pos = onField(fn, wt, pos, buf)
   }
 }
 
 /** 跳過一個 field value（用於不關心的欄位） */
 export function skipField(wt, buf, pos) {
-  if (wt === 0) { while (buf[pos++] & 0x80) {}; return pos }
-  if (wt === 2) { const lr = readVarint(buf, pos); return lr.pos + lr.val }
+  if (wt === 0) {
+    while (buf[pos++] & 0x80) {}
+    return pos
+  }
+  if (wt === 2) {
+    const lr = readVarint(buf, pos)
+    return lr.pos + lr.val
+  }
   if (wt === 5) return pos + 4
   if (wt === 1) return pos + 8
   throw new Error(`Unknown wire type: ${wt} at pos ${pos}`)
@@ -118,15 +133,15 @@ export function skipField(wt, buf, pos) {
 export const JKFACE_HEADERS = {
   'content-type': 'application/grpc-web+proto',
   'x-grpc-web': '1',
-  'origin': 'https://jkface.net',
-  'referer': 'https://jkface.net/',
+  origin: 'https://jkface.net',
+  referer: 'https://jkface.net/',
 }
 
 /** 呼叫 JKFace gRPC-Web API */
 export async function callJkfaceApi(method, msgBytes) {
   const resp = await fetch(
     `https://face-front-api.hare200.com/gapi/${method}`,
-    { method: 'POST', headers: JKFACE_HEADERS, body: grpcFrame(msgBytes) }
+    { method: 'POST', headers: JKFACE_HEADERS, body: grpcFrame(msgBytes) },
   )
   return new Uint8Array(await resp.arrayBuffer())
 }
