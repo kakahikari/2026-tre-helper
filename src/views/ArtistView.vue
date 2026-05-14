@@ -30,7 +30,7 @@
 div(class='min-h-screen px-6 py-12')
   h1(
     class='font-serif-tc mb-8 text-center text-2xl font-bold tracking-[0.3em] text-white'
-  ) 女優
+  ) 女優陣容
   div(class='mx-auto mb-8 max-w-3xl')
     div(class='relative')
       span(
@@ -50,7 +50,7 @@ div(class='min-h-screen px-6 py-12')
     li(v-for='artist in filteredArtists', :key='artist.id' class='relative')
       button(
         @click='selectedArtist = artist'
-        class='font-serif-tc w-full cursor-pointer rounded-lg border border-white/12 bg-zinc-900 px-4 py-6 text-center text-lg font-bold tracking-[0.2em] text-white transition-colors duration-200 hover:border-[#e8003a]/60 hover:bg-zinc-800 hover:text-[#e8003a] motion-reduce:transition-none'
+        class='font-serif-tc flex min-h-20 w-full cursor-pointer items-center justify-center rounded-lg border border-white/12 bg-zinc-900 px-4 py-3 text-center text-sm leading-snug font-bold tracking-[0.15em] text-white transition-colors duration-200 hover:border-[#e8003a]/60 hover:bg-zinc-800 hover:text-[#e8003a] motion-reduce:transition-none sm:min-h-24 sm:text-lg sm:tracking-[0.2em]'
       ) {{ artist.name }}
       button(
         @click.stop='toggleFavorite(artist.id)',

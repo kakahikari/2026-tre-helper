@@ -14,7 +14,7 @@
 
   const navLinks = [
     { to: '/', label: '首頁', icon: homeIcon },
-    { to: '/artists', label: '女優', icon: artistIcon },
+    { to: '/artists', label: '女優陣容', icon: artistIcon },
   ]
 
   const pageLinks = [
