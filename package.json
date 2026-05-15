@@ -10,6 +10,7 @@
     "fetch": "npm-run-all --aggregate-output -lnp fetch:*",
     "fetch:artists": "node scripts/fetch-artists.mjs",
     "fetch:events": "node scripts/fetch-events.mjs",
+    "fetch:sessions": "node scripts/fetch-sessions.mjs",
     "lint": "npm-run-all --aggregate-output -lnp lint:*",
     "lint:eslint": "eslint . --fix --cache",
     "lint:format": "prettier --write --experimental-cli .",
