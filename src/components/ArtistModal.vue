@@ -60,8 +60,7 @@ teleport(to='body')
     )
       div(class='w-full max-w-md rounded-lg border border-white/12 bg-zinc-900 p-8')
         div(class='mb-6 flex items-start justify-between gap-4')
-          div(class='flex items-center gap-2')
-            h2(class='font-serif-tc text-2xl font-bold tracking-[0.2em] text-white') {{ artist.name }}
+          div(class='flex items-start gap-2')
             button(
               @click='toggleFavorite(artist.id)',
               :aria-label='isFavorite(artist.id) ? "移除最愛" : "加入最愛"'
@@ -69,6 +68,7 @@ teleport(to='body')
               :class='isFavorite(artist.id) ? "text-yellow-400" : "text-white/30 hover:text-white/60"'
             )
               span(v-html='isFavorite(artist.id) ? starFilledIcon : starIcon')
+            h2(class='font-serif-tc text-2xl font-bold tracking-[0.2em] text-white') {{ artist.name }}
           button(
             @click='emit("close")'
             aria-label='關閉'

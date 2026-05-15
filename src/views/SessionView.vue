@@ -1,10 +1,12 @@
 <script setup lang="ts">
-  import { ref, computed, onMounted, onUnmounted } from 'vue'
+  import { ref, computed } from 'vue'
   import type { Session, Artist, Event } from '@/types/index'
   import sessionsData from '@/data/sessions.json'
   import artistsData from '@/data/artists.json'
   import eventsData from '@/data/events.json'
   import StickySearchBar from '@/components/StickySearchBar.vue'
+  import SessionModal from '@/components/SessionModal.vue'
+  import { useSessionFavorites } from '@/composables/useSessionFavorites'
 
   const sessions = sessionsData as Session[]
   const artists = artistsData as Artist[]
@@ -25,7 +27,7 @@
   const hoveredTime = ref<string | null>(null)
   const hoveredEid = ref<number | null>(null)
 
-  const externalIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>`
+  const { isFavorite } = useSessionFavorites()
 
   // 僅含有效時間的場次，依選定日期篩選，再依搜尋字串篩選
   const filteredSessions = computed(() => {
@@ -98,20 +100,11 @@
     hoveredEid.value = null
   }
 
-  function openModal(s: Session) {
-    selectedSession.value = s
+  function sessionCardClass(s: Session): string {
+    return isFavorite(s.id)
+      ? 'bg-amber-900/70 hover:bg-amber-800/80'
+      : 'bg-zinc-700/70 hover:bg-zinc-600/80'
   }
-
-  function closeModal() {
-    selectedSession.value = null
-  }
-
-  function onKeydown(e: KeyboardEvent) {
-    if (e.key === 'Escape') closeModal()
-  }
-
-  onMounted(() => window.addEventListener('keydown', onKeydown))
-  onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 </script>
 
 <template lang="pug">
@@ -175,72 +168,11 @@ div(class='min-h-screen')
                 div(
                   v-for='s in grid.get(time)?.get(eid)',
                   :key='s.id'
-                  @click='openModal(s)'
-                  class='font-serif-tc mb-0.5 cursor-pointer rounded bg-zinc-700/70 px-1.5 py-0.5 leading-snug text-white/90 transition-colors duration-150 hover:bg-zinc-600/80'
+                  @click='selectedSession = s'
+                  class='font-serif-tc mb-0.5 cursor-pointer rounded px-1.5 py-0.5 leading-snug text-white/90 transition-colors duration-150',
+                  :class='sessionCardClass(s)'
                 ) {{ artistNames(s) }}
     p(v-else class='text-center text-sm text-white/40') 找不到符合的場次
 
-//- Modal
-teleport(to='body')
-  transition(
-    enter-active-class='transition-opacity duration-[250ms] ease-in-out'
-    leave-active-class='transition-opacity duration-[250ms] ease-in-out'
-    enter-from-class='opacity-0'
-    leave-to-class='opacity-0'
-  )
-    div(
-      v-if='selectedSession'
-      class='fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-6 backdrop-blur-sm'
-      @click.self='closeModal'
-    )
-      div(class='w-full max-w-md rounded-lg border border-white/12 bg-zinc-900 p-8')
-        div(class='mb-6 flex items-start justify-between gap-4')
-          h2(class='font-serif-tc text-xl font-bold tracking-[0.2em] text-white') {{ artistNames(selectedSession) }}
-          button(
-            @click='closeModal'
-            aria-label='關閉'
-            class='mt-1 cursor-pointer border-none bg-transparent p-0 text-white/50 transition-colors duration-200 hover:text-white'
-          )
-            svg(
-              xmlns='http://www.w3.org/2000/svg'
-              width='20'
-              height='20'
-              viewBox='0 0 24 24'
-              fill='none'
-              stroke='currentColor'
-              stroke-width='2'
-              stroke-linecap='round'
-              stroke-linejoin='round'
-            )
-              path(d='M18 6 6 18')
-              path(d='m6 6 12 12')
-        div(class='flex flex-col gap-4')
-          div
-            p(class='mb-1 text-xs tracking-[0.15em] text-white/40') 場次名稱
-            p(class='font-serif-tc text-sm leading-relaxed text-white/80') {{ selectedSession.title }}
-          div
-            p(class='mb-1 text-xs tracking-[0.15em] text-white/40') 活動
-            a(
-              :href='`https://jkface.net/events/${selectedSession.eventId}`'
-              target='_blank'
-              rel='noopener noreferrer'
-              class='font-serif-tc inline-flex items-center gap-1.5 text-sm text-white no-underline transition-colors duration-200 hover:text-[#e8003a]'
-            )
-              span {{ eventNameMap.get(selectedSession.eventId) }}
-              span(v-html='externalIcon')
-          div
-            p(class='mb-2 text-xs tracking-[0.15em] text-white/40') 女優
-            ul(class='flex flex-col gap-1.5')
-              li(
-                v-for='artistId in selectedSession.artistIds',
-                :key='artistId'
-              )
-                a(
-                  :href='`https://jkface.net/profile/${artistId}`'
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  class='inline-flex items-center gap-1.5 text-sm text-white no-underline transition-colors duration-200 hover:text-[#e8003a]'
-                )
-                  span {{ artistMap.get(artistId) }}
-                  span(v-html='externalIcon')
+SessionModal(:session='selectedSession' @close='selectedSession = null')
 </template>
