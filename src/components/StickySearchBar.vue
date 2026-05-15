@@ -16,20 +16,19 @@
 </script>
 
 <template lang="pug">
-div(
-  class='sticky top-14 z-40 border-b border-white/8 bg-zinc-950/95 px-6 py-4 backdrop-blur-sm'
-)
-  div(class='relative', :class='$slots.default ? "mb-3" : ""')
-    span(
-      v-html='searchIcon'
-      class='pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-white/40'
-    )
-    input(
-      :value='modelValue'
-      @input='onInput'
-      type='search',
-      :placeholder='placeholder'
-      class='w-full rounded-lg border border-white/12 bg-zinc-900 py-3 pr-4 pl-10 text-sm text-white transition-colors duration-200 outline-none placeholder:text-white/30 focus:border-white/40'
-    )
-  slot
+div(class='sticky top-14 z-40 border-b border-white/8 bg-zinc-950/95')
+  div(class='mx-auto max-w-200 px-6 py-4 backdrop-blur-sm')
+    div(class='relative', :class='$slots.default ? "mb-3" : ""')
+      span(
+        v-html='searchIcon'
+        class='pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-white/40'
+      )
+      input(
+        :value='modelValue'
+        @input='onInput'
+        type='search',
+        :placeholder='placeholder'
+        class='w-full rounded-lg border border-white/12 bg-zinc-900 py-3 pr-4 pl-10 text-sm text-white transition-colors duration-200 outline-none placeholder:text-white/30 focus:border-white/40'
+      )
+    slot
 </template>
