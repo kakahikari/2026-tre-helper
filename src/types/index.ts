@@ -30,7 +30,7 @@ export interface ResolvedBooth extends Omit<Booth, 'artistsIds'> {
 export interface Session {
   id: number // checkInGroupId
   eventId: number // 所屬活動 id
-  title: string // reserveName（原始標題）
+  title: string // 場次名稱
   time: string // 從標題解析出的時間，格式 "YYYY/MM/DD HH:mm"
   artistIds: number[] // 從標題解析出的藝人 id 列表
 }
