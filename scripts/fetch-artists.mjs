@@ -181,6 +181,12 @@ function parseLineupItem(buf) {
   return id ? { id, name } : null
 }
 
+function dedupeArtists(items) {
+  const byId = new Map()
+  for (const item of items) byId.set(item.id, item)
+  return [...byId.values()].sort((a, b) => a.id - b.id)
+}
+
 // ── Main ────────────────────────────────────────────────────────────────────
 
 const lineupIds = await fetchLineupIds()
@@ -189,15 +195,25 @@ console.log(`Fetched ${lineupIds.length} lineup IDs`)
 const scraped = await fetchArtists(lineupIds)
 console.log(`Got ${scraped.length} artists from API`)
 
-const existing = JSON.parse(readFileSync(DATA_FILE, 'utf-8'))
-const existingIds = new Set(existing.map(a => a.id))
-const newItems = scraped.filter(a => !existingIds.has(a.id))
-
-if (newItems.length === 0) {
-  console.log('No new artists. artists.json is up to date.')
-} else {
-  const merged = [...existing, ...newItems]
-  writeFileSync(DATA_FILE, JSON.stringify(merged, null, 2) + '\n')
-  console.log(`Added ${newItems.length} new artists:`)
-  newItems.forEach(a => console.log(`  ${a.id}  ${a.name}`))
+if (scraped.length === 0) {
+  console.error('Fetched 0 artists. Refusing to overwrite artists.json.')
+  process.exit(1)
 }
+
+const existing = JSON.parse(readFileSync(DATA_FILE, 'utf-8'))
+const nextArtists = dedupeArtists(scraped)
+const existingById = new Map(existing.map(a => [a.id, a]))
+const nextIds = new Set(nextArtists.map(a => a.id))
+
+const added = nextArtists.filter(a => !existingById.has(a.id))
+const updated = nextArtists.filter(a => {
+  const prev = existingById.get(a.id)
+  return prev && prev.name !== a.name
+})
+const removed = existing.filter(a => !nextIds.has(a.id))
+
+writeFileSync(DATA_FILE, JSON.stringify(nextArtists, null, 2) + '\n')
+console.log(`Synced artists.json — ${nextArtists.length} total artists`)
+if (added.length > 0) console.log(`  Added ${added.length} artists.`)
+if (updated.length > 0) console.log(`  Updated ${updated.length} artists.`)
+if (removed.length > 0) console.log(`  Removed ${removed.length} artists.`)

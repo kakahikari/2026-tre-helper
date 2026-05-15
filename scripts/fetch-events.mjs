@@ -165,6 +165,7 @@ async function fetchActivityLineup(activityId) {
   const buf = new Uint8Array(await resp.arrayBuffer())
 
   const artistIds = []
+  const seenArtistIds = new Set()
   // response: field 2 = { field1: actId, field2: repeated lineupItems }
   for (const f of parseMessage(buf.slice(5))) {
     if (f.fn !== 2 || f.wt !== 2) continue
@@ -175,7 +176,13 @@ async function fetchActivityLineup(activityId) {
         if (lf.fn !== 10 || lf.wt !== 2) continue
         const url = Buffer.from(lf.bytes).toString('utf8')
         const match = url.match(/\/profile\/(\d+)/)
-        if (match) artistIds.push(Number(match[1]))
+        if (!match) continue
+
+        const artistId = Number(match[1])
+        if (!seenArtistIds.has(artistId)) {
+          seenArtistIds.add(artistId)
+          artistIds.push(artistId)
+        }
       }
     }
   }
@@ -198,6 +205,11 @@ if (activityIds.length === 0) {
 const activities = await fetchActivityInfo(activityIds)
 console.log(`Step 2: Got ${activities.length} activities from GetActivityInfo`)
 
+if (activities.length === 0) {
+  console.error('Fetched 0 activities. Refusing to overwrite events.json.')
+  process.exit(1)
+}
+
 const result = []
 for (const act of activities) {
   const artistIds = await fetchActivityLineup(act.id)
@@ -205,19 +217,26 @@ for (const act of activities) {
   console.log(`  Activity ${act.id} "${act.name}": ${artistIds.length} artists`)
 }
 
-// Merge into existing events.json (update existing + add new)
 const existing = JSON.parse(readFileSync(EVENTS_FILE, 'utf-8'))
-const freshById = new Map(result.map(e => [e.id, e]))
-const merged = existing.map(e => {
-  const fresh = freshById.get(e.id)
-  if (!fresh) return e
-  freshById.delete(e.id)
-  return fresh
-})
-// Append truly new events
-for (const e of freshById.values()) merged.push(e)
+const nextEvents = [...new Map(result.map(e => [e.id, e])).values()].sort(
+  (a, b) => a.id - b.id,
+)
+const existingById = new Map(existing.map(e => [e.id, e]))
+const nextIds = new Set(nextEvents.map(e => e.id))
 
-writeFileSync(EVENTS_FILE, JSON.stringify(merged, null, 2) + '\n')
-console.log(`\nStep 3: Updated events.json — ${merged.length} total events`)
-const added = merged.length - existing.length
-if (added > 0) console.log(`  Added ${added} new events.`)
+const added = nextEvents.filter(e => !existingById.has(e.id))
+const updated = nextEvents.filter(e => {
+  const prev = existingById.get(e.id)
+  return (
+    prev &&
+    (prev.name !== e.name ||
+      JSON.stringify(prev.artistIds) !== JSON.stringify(e.artistIds))
+  )
+})
+const removed = existing.filter(e => !nextIds.has(e.id))
+
+writeFileSync(EVENTS_FILE, JSON.stringify(nextEvents, null, 2) + '\n')
+console.log(`\nStep 3: Synced events.json — ${nextEvents.length} total events`)
+if (added.length > 0) console.log(`  Added ${added.length} events.`)
+if (updated.length > 0) console.log(`  Updated ${updated.length} events.`)
+if (removed.length > 0) console.log(`  Removed ${removed.length} events.`)

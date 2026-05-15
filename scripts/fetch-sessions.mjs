@@ -107,21 +107,39 @@ function normalize(s) {
   return s.replace(/[桜桧滝竜]/g, c => JP_TO_TRAD[c] ?? c)
 }
 
+function createArtistLookup(artists) {
+  const nameToId = new Map(artists.map(artist => [artist.name, artist.id]))
+  const normalizedNameToArtist = new Map(
+    artists.map(artist => [normalize(artist.name), artist]),
+  )
+
+  return { nameToId, normalizedNameToArtist }
+}
+
+function resolveArtistName(name, artistLookup) {
+  if (artistLookup.nameToId.has(name)) return name
+  return artistLookup.normalizedNameToArtist.get(normalize(name))?.name ?? null
+}
+
 /** 從文字中找出已知藝人名（支援字元正規化） */
-function extractArtistNames(text, nameToId) {
+function extractArtistNames(text, artistLookup) {
   // 優先比對【...】括號內容
   const brackets = [...text.matchAll(/【([^】]+)】/g)].map(m => m[1].trim())
-  const fromBrackets = brackets.filter(
-    b => nameToId.has(b) || nameToId.has(normalize(b)),
-  )
+  const fromBrackets = [
+    ...new Set(
+      brackets
+        .map(name => resolveArtistName(name, artistLookup))
+        .filter(Boolean),
+    ),
+  ]
   if (fromBrackets.length > 0) return fromBrackets
   // 掃描所有已知藝人名
-  return [...nameToId.keys()].filter(name =>
+  return [...artistLookup.nameToId.keys()].filter(name =>
     normalize(text).includes(normalize(name)),
   )
 }
 
-function parseReserveName(title, nameToId) {
+function parseReserveName(title, artistLookup) {
   // A: 標準格式（YYYY/MM/DD，允許多餘空白）
   const fA = title.match(
     /^(\d{4}\/\d{2}\/\d{2})\s+(\d{2}:\d{2})-\d{2}:\d{2}\s+(.+)$/,
@@ -129,7 +147,7 @@ function parseReserveName(title, nameToId) {
   if (fA)
     return {
       time: `${fA[1]} ${fA[2]}`,
-      artistNames: extractArtistNames(fA[3], nameToId),
+      artistNames: extractArtistNames(fA[3], artistLookup),
     }
 
   // D: YYYYMMDDHHMM（12 位，無分隔符，不帶冒號）
@@ -137,7 +155,7 @@ function parseReserveName(title, nameToId) {
   if (fD)
     return {
       time: `${fD[1]}/${fD[2]}/${fD[3]} ${fD[4]}:${fD[5]}`,
-      artistNames: extractArtistNames(fD[6], nameToId),
+      artistNames: extractArtistNames(fD[6], artistLookup),
     }
 
   // E: YYYYMMDD（8 位，無時間）
@@ -145,7 +163,7 @@ function parseReserveName(title, nameToId) {
   if (fE)
     return {
       time: `${fE[1]}/${fE[2]}/${fE[3]}`,
-      artistNames: extractArtistNames(fE[4], nameToId),
+      artistNames: extractArtistNames(fE[4], artistLookup),
     }
 
   // B/C: M/D HH:mm-HH:mm（短日期，日期與時間間允許無空格）
@@ -157,7 +175,7 @@ function parseReserveName(title, nameToId) {
       dd = fBC[2].padStart(2, '0')
     return {
       time: `2026/${mm}/${dd} ${fBC[3]}`,
-      artistNames: extractArtistNames(fBC[4], nameToId),
+      artistNames: extractArtistNames(fBC[4], artistLookup),
     }
   }
 
@@ -166,7 +184,7 @@ function parseReserveName(title, nameToId) {
   if (fF)
     return {
       time: `2026/${fF[1]}/${fF[2]} ${fF[3]}`,
-      artistNames: extractArtistNames(fF[4], nameToId),
+      artistNames: extractArtistNames(fF[4], artistLookup),
     }
 
   return { time: '', artistNames: [] }
@@ -202,12 +220,13 @@ async function fetchReserveInfo(activityId) {
 
 const events = JSON.parse(readFileSync(EVENTS_FILE, 'utf-8'))
 const artists = JSON.parse(readFileSync(ARTISTS_FILE, 'utf-8'))
-const nameToId = new Map(artists.map(a => [a.name, a.id]))
+const artistLookup = createArtistLookup(artists)
 // 後宮場次例外：eventId → 該活動所有 artistIds
 const eventArtistMap = new Map(events.map(e => [e.id, e.artistIds ?? []]))
 
 const allSessions = []
-let totalSkipped = 0
+const unresolvedArtists = []
+const unparsedSessions = []
 
 for (const event of events) {
   const raw = await fetchReserveInfo(event.id)
@@ -216,15 +235,25 @@ for (const event of events) {
   console.log(`Event ${event.id} "${event.name}": ${raw.length} sessions`)
 
   for (const { id, title } of raw) {
-    const { time, artistNames } = parseReserveName(title, nameToId)
+    const { time, artistNames } = parseReserveName(title, artistLookup)
+    if (!time) {
+      unparsedSessions.push({ id, eventId: event.id, title })
+    }
+
     const artistIds = []
     for (const name of artistNames) {
-      const aid = nameToId.get(name)
+      const resolvedName = resolveArtistName(name, artistLookup)
+      const aid = resolvedName ? artistLookup.nameToId.get(resolvedName) : null
       if (aid != null) {
         artistIds.push(aid)
       } else {
-        console.warn(`  ⚠ 找不到藝人「${name}」（session ${id}: "${title}"）`)
-        totalSkipped++
+        unresolvedArtists.push({
+          eventId: event.id,
+          eventName: event.name,
+          id,
+          title,
+          name,
+        })
       }
     }
     // 後宮場次：直接用活動下所有女優
@@ -238,7 +267,31 @@ for (const event of events) {
   }
 }
 
+if (unparsedSessions.length > 0 || unresolvedArtists.length > 0) {
+  if (unparsedSessions.length > 0) {
+    console.error(
+      `⚠ ${unparsedSessions.length} 筆場次無法解析時間，已停止輸出：`,
+    )
+    unparsedSessions.slice(0, 10).forEach(session => {
+      console.error(
+        `  event ${session.eventId}, session ${session.id}: "${session.title}"`,
+      )
+    })
+  }
+
+  if (unresolvedArtists.length > 0) {
+    console.error(
+      `⚠ ${unresolvedArtists.length} 筆藝人名稱無法對應，已停止輸出：`,
+    )
+    unresolvedArtists.slice(0, 10).forEach(item => {
+      console.error(
+        `  event ${item.eventId} "${item.eventName}", session ${item.id}: 「${item.name}」 in "${item.title}"`,
+      )
+    })
+  }
+
+  process.exit(1)
+}
+
 writeFileSync(SESSIONS_FILE, JSON.stringify(allSessions, null, 2) + '\n')
 console.log(`\n寫入 sessions.json — ${allSessions.length} 筆場次`)
-if (totalSkipped > 0)
-  console.warn(`⚠ ${totalSkipped} 筆藝人名稱未能對應，請手動確認`)
