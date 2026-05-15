@@ -1,15 +1,17 @@
+// 女優
 export interface Artist {
   id: number
   name: string
 }
 
-// 對應 JSON 原始資料結構
+// 活動
 export interface Event {
   id: number
   name: string
   artistIds: number[]
 }
 
+// 攤位
 export interface Booth {
   id: string
   name: string
@@ -18,11 +20,11 @@ export interface Booth {
 }
 
 // 已解析關聯後的型別（artistIds 展開為完整 Artist 物件）
-export interface ResolvedEvent extends Omit<Event, 'artistsIds'> {
+export interface ResolvedEvent extends Omit<Event, 'artistIds'> {
   artists: Artist[]
 }
 
-export interface ResolvedBooth extends Omit<Booth, 'artistsIds'> {
+export interface ResolvedBooth extends Omit<Booth, 'artistIds'> {
   artists: Artist[]
 }
 
