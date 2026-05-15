@@ -4,6 +4,7 @@
   import booths from '@/data/booths.json'
   import events from '@/data/events.json'
   import { useFavorites } from '@/composables/useFavorites'
+  import { useRouter } from 'vue-router'
 
   const props = defineProps<{
     artist: Artist | null
@@ -13,7 +14,13 @@
     close: []
   }>()
 
+  const router = useRouter()
   const { isFavorite, toggleFavorite } = useFavorites()
+
+  function goToSessions(eventName: string) {
+    emit('close')
+    router.push({ name: 'sessions', query: { q: eventName } })
+  }
 
   const artistBooths = computed<Booth[]>(() =>
     (booths as Booth[]).filter(b =>
@@ -100,14 +107,21 @@ teleport(to='body')
           div
             p(class='mb-2 text-xs tracking-[0.15em] text-white/40') 參加活動
             ul(v-if='artistEvents.length' class='flex flex-col gap-1')
-              li(v-for='event in artistEvents', :key='event.id')
+              li(
+                v-for='event in artistEvents',
+                :key='event.id'
+                class='flex items-center gap-2'
+              )
+                button(
+                  @click='goToSessions(event.name)'
+                  class='hover:text-accent cursor-pointer border-none bg-transparent p-0 text-left text-sm text-white transition-colors duration-200'
+                ) {{ event.name }}
                 a(
                   :href='`https://jkface.net/events/${event.id}`'
                   target='_blank'
                   rel='noopener noreferrer'
-                  class='hover:text-accent inline-flex items-center gap-1.5 text-sm text-white no-underline transition-colors duration-200'
+                  class='hover:text-accent shrink-0 text-white/40 transition-colors duration-200'
                 )
-                  span {{ event.name }}
                   span(v-html='externalIcon')
             p(v-else class='text-sm text-white/40') —
           div
