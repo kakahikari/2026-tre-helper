@@ -1,5 +1,9 @@
 @import 'tailwindcss';
 
+@theme {
+  --color-accent: #e8003a;
+}
+
 @utility font-serif-tc {
   font-family: 'Noto Serif TC', serif;
 }

@@ -40,7 +40,7 @@ div(class='min-h-screen')
       li(v-for='artist in filteredArtists', :key='artist.id' class='relative')
         button(
           @click='selectedArtist = artist'
-          class='font-serif-tc flex min-h-20 w-full cursor-pointer items-center justify-center rounded-lg border border-white/12 bg-zinc-900 px-4 py-3 text-center text-sm leading-snug font-bold tracking-[0.15em] text-white transition-colors duration-200 hover:border-[#e8003a]/60 hover:bg-zinc-800 hover:text-[#e8003a] motion-reduce:transition-none sm:min-h-24 sm:text-lg sm:tracking-[0.2em]'
+          class='font-serif-tc hover:border-accent/60 hover:text-accent flex min-h-20 w-full cursor-pointer items-center justify-center rounded-lg border border-white/12 bg-zinc-900 px-4 py-3 text-center text-sm leading-snug font-bold tracking-[0.15em] text-white transition-colors duration-200 hover:bg-zinc-800 motion-reduce:transition-none sm:min-h-24 sm:text-lg sm:tracking-[0.2em]'
         ) {{ artist.name }}
         button(
           @click.stop='toggleFavorite(artist.id)',

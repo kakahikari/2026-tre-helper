@@ -89,7 +89,7 @@ teleport(to='body')
               :href='`https://jkface.net/events/${session.eventId}`'
               target='_blank'
               rel='noopener noreferrer'
-              class='font-serif-tc inline-flex items-center gap-1.5 text-sm text-white no-underline transition-colors duration-200 hover:text-[#e8003a]'
+              class='font-serif-tc hover:text-accent inline-flex items-center gap-1.5 text-sm text-white no-underline transition-colors duration-200'
             )
               span {{ eventNameMap.get(session.eventId) }}
               span(v-html='externalIcon')
@@ -101,7 +101,7 @@ teleport(to='body')
                   :href='`https://jkface.net/profile/${artistId}`'
                   target='_blank'
                   rel='noopener noreferrer'
-                  class='inline-flex items-center gap-1.5 text-sm text-white no-underline transition-colors duration-200 hover:text-[#e8003a]'
+                  class='hover:text-accent inline-flex items-center gap-1.5 text-sm text-white no-underline transition-colors duration-200'
                 )
                   span {{ artistMap.get(artistId) }}
                   span(v-html='externalIcon')

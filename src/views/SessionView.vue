@@ -26,6 +26,7 @@
   const selectedSession = ref<Session | null>(null)
   const hoveredTime = ref<string | null>(null)
   const hoveredEid = ref<number | null>(null)
+  const showMySchedule = ref(false)
 
   const { isFavorite } = useSessionFavorites()
 
@@ -34,9 +35,12 @@
     const base = sessions.filter(
       s => s.time.startsWith(activeDate.value) && s.time.length > 10,
     )
+    const afterFavorite = showMySchedule.value
+      ? base.filter(s => isFavorite(s.id))
+      : base
     const q = query.value.trim()
-    if (!q) return base
-    return base.filter(
+    if (!q) return afterFavorite
+    return afterFavorite.filter(
       s =>
         s.artistIds.some(id => (artistMap.get(id) ?? '').includes(q)) ||
         (eventNameMap.get(s.eventId) ?? '').includes(q),
@@ -102,7 +106,7 @@
 
   function sessionCardClass(s: Session): string {
     return isFavorite(s.id)
-      ? 'bg-amber-900/70 hover:bg-amber-800/80'
+      ? 'bg-accent/25 hover:bg-accent/40'
       : 'bg-zinc-700/70 hover:bg-zinc-600/80'
   }
 </script>
@@ -116,14 +120,31 @@ div(class='min-h-screen')
     ) 場次列表
   //- 凍結區塊：搜尋框 + 日期切換
   StickySearchBar(v-model='query' placeholder='輸入女優或活動名稱…')
-    div(class='flex flex-wrap gap-2')
-      button(
-        v-for='btn in DAY_BUTTONS',
-        :key='btn.date'
-        @click='activeDate = btn.date',
-        :class='activeDate === btn.date ? "border-white/60 text-white" : "border-white/12 text-white/50 hover:border-white/30 hover:text-white/80"'
-        class='font-serif-tc cursor-pointer rounded-lg border bg-transparent px-4 py-2 text-sm tracking-wide transition-colors duration-200'
-      ) {{ btn.label }}
+    div(class='flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3')
+      div(class='flex flex-1 gap-2')
+        button(
+          v-for='btn in DAY_BUTTONS',
+          :key='btn.date'
+          @click='activeDate = btn.date',
+          :class='activeDate === btn.date ? "border-white/60 text-white" : "border-white/12 text-white/50 hover:border-white/30 hover:text-white/80"'
+          class='font-serif-tc flex-1 cursor-pointer rounded-lg border bg-transparent px-4 py-2 text-center text-sm tracking-wide transition-colors duration-200'
+        ) {{ btn.label }}
+      div(
+        class='flex cursor-pointer items-center justify-end gap-2'
+        @click='showMySchedule = !showMySchedule'
+      )
+        span(
+          class='font-serif-tc text-sm tracking-wide transition-colors duration-200',
+          :class='showMySchedule ? "text-accent" : "text-white/40"'
+        ) 我的行程
+        div(
+          class='relative h-5 w-9 rounded-full transition-colors duration-200',
+          :class='showMySchedule ? "bg-accent" : "bg-white/15"'
+        )
+          div(
+            class='absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform duration-200',
+            :class='showMySchedule ? "translate-x-4" : "translate-x-0.5"'
+          )
   //- 格線
   div(class='px-6 pt-4 pb-12')
     div(

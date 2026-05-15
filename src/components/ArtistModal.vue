@@ -105,7 +105,7 @@ teleport(to='body')
                   :href='`https://jkface.net/events/${event.id}`'
                   target='_blank'
                   rel='noopener noreferrer'
-                  class='inline-flex items-center gap-1.5 text-sm text-white no-underline transition-colors duration-200 hover:text-[#e8003a]'
+                  class='hover:text-accent inline-flex items-center gap-1.5 text-sm text-white no-underline transition-colors duration-200'
                 )
                   span {{ event.name }}
                   span(v-html='externalIcon')
@@ -116,7 +116,7 @@ teleport(to='body')
               :href='websiteUrl'
               target='_blank'
               rel='noopener noreferrer'
-              class='inline-flex items-center gap-1.5 text-sm text-white no-underline transition-colors duration-200 hover:text-[#e8003a]'
+              class='hover:text-accent inline-flex items-center gap-1.5 text-sm text-white no-underline transition-colors duration-200'
             )
               span {{ websiteUrl }}
               span(v-html='externalIcon')

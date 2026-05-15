@@ -8,9 +8,9 @@
 
   const artistIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>`
 
-  // const calendarIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>`
+  const calendarIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>`
 
-  const listIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>`
+  // const listIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>`
 
   const ticketIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v2z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>`
 
@@ -19,7 +19,7 @@
   const navLinks = [
     { to: '/', label: '首頁', icon: homeIcon },
     { to: '/artists', label: '女優陣容', icon: artistIcon },
-    { to: '/sessions', label: '場次列表', icon: listIcon },
+    { to: '/sessions', label: '場次列表', icon: calendarIcon },
   ]
 
   const pageLinks = [
@@ -84,7 +84,7 @@ teleport(to='body')
           :key='link.to',
           :to='link.to'
           @click='menuOpen = false'
-          class='font-serif-tc flex items-center gap-3 text-2xl font-bold tracking-[0.3em] text-white no-underline transition-colors duration-200 hover:text-[#e8003a] motion-reduce:transition-none [&.router-link-active]:text-[#e8003a]'
+          class='font-serif-tc hover:text-accent [&.router-link-active]:text-accent flex items-center gap-3 text-2xl font-bold tracking-[0.3em] text-white no-underline transition-colors duration-200 motion-reduce:transition-none'
         )
           span(v-if='link.icon' v-html='link.icon')
           span {{ link.label }}
@@ -95,7 +95,7 @@ teleport(to='body')
           target='_blank'
           rel='noopener noreferrer'
           @click='menuOpen = false'
-          class='font-serif-tc flex items-center gap-3 text-2xl font-bold tracking-[0.3em] text-white no-underline transition-colors duration-200 hover:text-[#e8003a] motion-reduce:transition-none'
+          class='font-serif-tc hover:text-accent flex items-center gap-3 text-2xl font-bold tracking-[0.3em] text-white no-underline transition-colors duration-200 motion-reduce:transition-none'
         )
           span(v-if='link.icon' v-html='link.icon')
           span {{ link.label }}
@@ -106,7 +106,7 @@ teleport(to='body')
           target='_blank'
           rel='noopener noreferrer'
           @click='menuOpen = false'
-          class='font-serif-tc flex items-center gap-3 text-2xl font-bold tracking-[0.3em] text-white no-underline transition-colors duration-200 hover:text-[#e8003a] motion-reduce:transition-none'
+          class='font-serif-tc hover:text-accent flex items-center gap-3 text-2xl font-bold tracking-[0.3em] text-white no-underline transition-colors duration-200 motion-reduce:transition-none'
         )
           span(v-if='link.icon' v-html='link.icon')
           span {{ link.label }}
