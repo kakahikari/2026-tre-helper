@@ -1,0 +1,54 @@
+name: Daily Fetch Data
+
+on:
+  schedule:
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+jobs:
+  fetch-and-pr:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Fetch latest data
+        run: pnpm run fetch
+
+      - name: Lint generated changes
+        run: pnpm run lint
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          author: 'github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>'
+          commit-message: 'chore: update fetched data'
+          branch: chore/daily-fetch
+          delete-branch: true
+          title: 'chore: daily fetched data update'
+          body: |
+            ## Summary
+
+            - run `pnpm run fetch`
+            - run `pnpm run lint`
+
+            This PR was created automatically by GitHub Actions.
+          labels: |
+            automated
+            data-update
