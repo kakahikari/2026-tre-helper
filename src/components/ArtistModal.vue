@@ -100,11 +100,15 @@ teleport(to='body')
           div
             p(class='mb-2 text-xs tracking-[0.15em] text-white/40') 參加活動
             ul(v-if='artistEvents.length' class='flex flex-col gap-1')
-              li(
-                v-for='event in artistEvents',
-                :key='event.id'
-                class='text-sm text-white'
-              ) {{ event.name }}
+              li(v-for='event in artistEvents', :key='event.id')
+                a(
+                  :href='`https://jkface.net/events/${event.id}`'
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  class='inline-flex items-center gap-1.5 text-sm text-white no-underline transition-colors duration-200 hover:text-[#e8003a]'
+                )
+                  span {{ event.name }}
+                  span(v-html='externalIcon')
             p(v-else class='text-sm text-white/40') —
           div
             p(class='mb-2 text-xs tracking-[0.15em] text-white/40') JKFACE
