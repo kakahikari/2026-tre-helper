@@ -214,6 +214,17 @@ import { dirname, join } from 'node:path'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DATA_FILE = join(__dirname, '../src/data/TARGET.json')
 
+function stableStringify(obj) {
+  return JSON.stringify(
+    obj,
+    (_, v) =>
+      v && typeof v === 'object' && !Array.isArray(v)
+        ? Object.fromEntries(Object.entries(v).sort())
+        : v,
+    2,
+  )
+}
+
 const HEADERS = {
   'content-type': 'application/grpc-web+proto',
   'x-grpc-web': '1',
@@ -271,10 +282,7 @@ const newItems = scraped.filter(a => !existingIds.has(a.id))
 if (newItems.length === 0) {
   console.log('No new data.')
 } else {
-  writeFileSync(
-    DATA_FILE,
-    JSON.stringify([...existing, ...newItems], null, 2) + '\n',
-  )
+  writeFileSync(DATA_FILE, stableStringify([...existing, ...newItems]) + '\n')
   console.log(`Added ${newItems.length} new items.`)
 }
 ```

@@ -26,6 +26,17 @@ const HEADERS = {
   referer: 'https://jkface.net/',
 }
 
+function stableStringify(obj) {
+  return JSON.stringify(
+    obj,
+    (_, v) =>
+      v && typeof v === 'object' && !Array.isArray(v)
+        ? Object.fromEntries(Object.entries(v).sort())
+        : v,
+    2,
+  )
+}
+
 // ── Protobuf helpers ─────────────────────────────────────────────────────────
 
 function encodeVarint(n) {
@@ -293,5 +304,5 @@ if (unparsedSessions.length > 0 || unresolvedArtists.length > 0) {
   process.exit(1)
 }
 
-writeFileSync(SESSIONS_FILE, JSON.stringify(allSessions, null, 2) + '\n')
+writeFileSync(SESSIONS_FILE, stableStringify(allSessions) + '\n')
 console.log(`\n寫入 sessions.json — ${allSessions.length} 筆場次`)

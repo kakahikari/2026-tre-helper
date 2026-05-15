@@ -18,6 +18,17 @@ const HEADERS = {
   referer: 'https://jkface.net/',
 }
 
+function stableStringify(obj) {
+  return JSON.stringify(
+    obj,
+    (_, v) =>
+      v && typeof v === 'object' && !Array.isArray(v)
+        ? Object.fromEntries(Object.entries(v).sort())
+        : v,
+    2,
+  )
+}
+
 // ── protobuf helpers ────────────────────────────────────────────────────────
 
 function encodeVarint(n) {
@@ -212,7 +223,7 @@ const updated = nextArtists.filter(a => {
 })
 const removed = existing.filter(a => !nextIds.has(a.id))
 
-writeFileSync(DATA_FILE, JSON.stringify(nextArtists, null, 2) + '\n')
+writeFileSync(DATA_FILE, stableStringify(nextArtists) + '\n')
 console.log(`Synced artists.json — ${nextArtists.length} total artists`)
 if (added.length > 0) console.log(`  Added ${added.length} artists.`)
 if (updated.length > 0) console.log(`  Updated ${updated.length} artists.`)
