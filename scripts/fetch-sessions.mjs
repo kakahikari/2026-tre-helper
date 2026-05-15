@@ -203,6 +203,8 @@ async function fetchReserveInfo(activityId) {
 const events = JSON.parse(readFileSync(EVENTS_FILE, 'utf-8'))
 const artists = JSON.parse(readFileSync(ARTISTS_FILE, 'utf-8'))
 const nameToId = new Map(artists.map(a => [a.name, a.id]))
+// 後宮場次例外：eventId → 該活動所有 artistIds
+const eventArtistMap = new Map(events.map(e => [e.id, e.artistIds ?? []]))
 
 const allSessions = []
 let totalSkipped = 0
@@ -223,6 +225,13 @@ for (const event of events) {
       } else {
         console.warn(`  ⚠ 找不到藝人「${name}」（session ${id}: "${title}"）`)
         totalSkipped++
+      }
+    }
+    // 後宮場次：直接用活動下所有女優
+    if (title.includes('後宮')) {
+      const eventArtists = eventArtistMap.get(event.id) ?? []
+      for (const aid of eventArtists) {
+        if (!artistIds.includes(aid)) artistIds.push(aid)
       }
     }
     allSessions.push({ id, eventId: event.id, title, time, artistIds })

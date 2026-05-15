@@ -81,7 +81,7 @@
   }
 
   function artistNames(s: Session): string {
-    return s.artistIds.map(id => artistMap.get(id) ?? '').join('・')
+    return s.artistIds.map(id => artistMap.get(id) ?? '').join('、')
   }
 
   // 根據列（time）與欄（eid）的 hover 狀態決定儲存格背景
