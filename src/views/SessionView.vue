@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { ref, computed } from 'vue'
+  import { ref, computed, watch } from 'vue'
   import type { Session, Artist, Event } from '@/types/index'
   import sessionsData from '@/data/sessions.json'
   import artistsData from '@/data/artists.json'
@@ -7,10 +7,14 @@
   import StickySearchBar from '@/components/StickySearchBar.vue'
   import SessionModal from '@/components/SessionModal.vue'
   import { useSessionFavorites } from '@/composables/useSessionFavorites'
+  import { useRoute, useRouter } from 'vue-router'
 
   const sessions = sessionsData as Session[]
   const artists = artistsData as Artist[]
   const events = eventsData as Event[]
+
+  const route = useRoute()
+  const router = useRouter()
 
   const artistMap = new Map<number, string>(artists.map(a => [a.id, a.name]))
   const eventNameMap = new Map<number, string>(events.map(e => [e.id, e.name]))
@@ -21,12 +25,17 @@
     { date: '2026/07/05', label: '7/5（日）' },
   ]
 
-  const activeDate = ref('2026/07/03')
-  const query = ref('')
+  const validDates = DAY_BUTTONS.map(b => b.date)
+  const activeDate = ref(
+    validDates.includes(route.query.date as string)
+      ? (route.query.date as string)
+      : '2026/07/03',
+  )
+  const query = ref((route.query.q as string) ?? '')
   const selectedSession = ref<Session | null>(null)
   const hoveredTime = ref<string | null>(null)
   const hoveredEid = ref<number | null>(null)
-  const showMySchedule = ref(false)
+  const showMySchedule = ref(route.query.my === '1')
 
   const { isFavorite } = useSessionFavorites()
 
@@ -103,6 +112,16 @@
     hoveredTime.value = null
     hoveredEid.value = null
   }
+
+  watch([activeDate, query, showMySchedule], ([date, q, my]) => {
+    router.replace({
+      query: {
+        date,
+        ...(q ? { q } : {}),
+        ...(my ? { my: '1' } : {}),
+      },
+    })
+  })
 
   function sessionCardClass(s: Session): string {
     return isFavorite(s.id)

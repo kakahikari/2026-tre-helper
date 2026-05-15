@@ -1,14 +1,18 @@
 <script setup lang="ts">
-  import { ref, computed } from 'vue'
+  import { ref, computed, watch } from 'vue'
   import type { Artist } from '@/types/index'
   import artistsData from '@/data/artists.json'
   import ArtistModal from '@/components/ArtistModal.vue'
   import StickySearchBar from '@/components/StickySearchBar.vue'
   import { useFavorites } from '@/composables/useFavorites'
+  import { useRoute, useRouter } from 'vue-router'
+
+  const route = useRoute()
+  const router = useRouter()
 
   const artists = artistsData as Artist[]
   const selectedArtist = ref<Artist | null>(null)
-  const query = ref('')
+  const query = ref((route.query.q as string) ?? '')
 
   const { isFavorite, toggleFavorite } = useFavorites()
 
@@ -22,6 +26,10 @@
     return result.sort(
       (a, b) => (isFavorite(b.id) ? 1 : 0) - (isFavorite(a.id) ? 1 : 0),
     )
+  })
+
+  watch(query, val => {
+    router.replace({ query: val ? { q: val } : {} })
   })
 </script>
 
