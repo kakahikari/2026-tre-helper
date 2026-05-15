@@ -133,9 +133,9 @@
 <template lang="pug">
 div(class='min-h-screen')
   //- 標題（可隨頁面捲動）
-  div(class='px-6 pt-12 pb-4')
+  div(class='px-4 pt-6 pb-3 sm:px-6 sm:pt-12 sm:pb-4')
     h1(
-      class='font-serif-tc text-center text-2xl font-bold tracking-[0.3em] text-white'
+      class='font-serif-tc text-center text-xl font-bold tracking-[0.3em] text-white sm:text-2xl'
     ) 場次列表
   //- 凍結區塊：搜尋框 + 日期切換
   StickySearchBar(v-model='query' placeholder='輸入女優或活動名稱…')
@@ -165,7 +165,7 @@ div(class='min-h-screen')
             :class='showMySchedule ? "translate-x-4" : "translate-x-0.5"'
           )
   //- 格線
-  div(class='px-6 pt-4 pb-12')
+  div(class='px-2 pt-2 pb-8 sm:px-6 sm:pt-4 sm:pb-12')
     div(
       v-if='filteredSessions.length'
       class='overflow-x-auto rounded-lg border border-white/8'
@@ -174,13 +174,13 @@ div(class='min-h-screen')
         thead
           tr
             th(
-              class='sticky left-0 z-20 w-16 border-r border-b border-white/8 bg-zinc-950 px-3 py-2 text-center text-xs font-normal text-white/40'
+              class='sticky left-0 z-20 w-10 border-r border-b border-white/8 bg-zinc-950 px-1.5 py-1 text-center text-xs font-normal text-white/40 sm:w-16 sm:px-3 sm:py-2'
             ) 時間
             th(
               v-for='eid in activeEventIds',
               :key='eid',
               :title='eventNameMap.get(eid)'
-              class='w-28 border-r border-b border-white/8 px-2 py-2 text-center text-xs leading-snug font-normal transition-colors duration-150',
+              class='w-20 border-r border-b border-white/8 px-1 py-1 text-center text-xs leading-snug font-normal transition-colors duration-150 sm:w-28 sm:px-2 sm:py-2',
               :class='hoveredEid === eid ? "bg-zinc-800 text-white/90" : "bg-zinc-950 text-white/60"'
               @mouseenter='hoveredEid = eid'
               @mouseleave='hoveredEid = null'
@@ -193,13 +193,13 @@ div(class='min-h-screen')
             @mouseleave='hoveredTime = null'
           )
             td(
-              class='sticky left-0 z-10 border-r border-b border-white/6 px-3 py-1.5 text-center font-mono text-white/50 transition-colors duration-150',
+              class='sticky left-0 z-10 border-r border-b border-white/6 px-1.5 py-1 text-center font-mono text-white/50 transition-colors duration-150 sm:px-3 sm:py-1.5',
               :class='hoveredTime === time ? "bg-zinc-800" : "bg-zinc-950"'
             ) {{ time }}
             td(
               v-for='eid in activeEventIds',
               :key='eid'
-              class='border-r border-b border-white/6 px-1.5 py-1 align-top transition-colors duration-150',
+              class='border-r border-b border-white/6 px-0.5 py-0.5 align-top transition-colors duration-150 sm:px-1.5 sm:py-1',
               :class='cellBg(time, eid)'
               @mouseenter='hoveredEid = eid'
               @mouseleave='hoveredEid = null'
