@@ -16,9 +16,9 @@
   const eventNameMap = new Map<number, string>(events.map(e => [e.id, e.name]))
 
   const DAY_BUTTONS = [
-    { date: '2026/07/03', label: '7/3（四）' },
-    { date: '2026/07/04', label: '7/4（五）' },
-    { date: '2026/07/05', label: '7/5（六）' },
+    { date: '2026/07/03', label: '7/3（五）' },
+    { date: '2026/07/04', label: '7/4（六）' },
+    { date: '2026/07/05', label: '7/5（日）' },
   ]
 
   const activeDate = ref('2026/07/03')
