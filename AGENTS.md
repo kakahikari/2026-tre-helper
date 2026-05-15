@@ -87,4 +87,6 @@ export function useMyComposable() {
 ## 部署注意事項
 
 - Vite `base` 目前設定為 `/2026-tre-helper/`
+- Vue Router 目前使用 hash mode 部署到 GitHub Pages，網址格式為 `/2026-tre-helper/#/...`，不要直接改回 history mode，除非同步補上靜態 fallback 或改用支援 rewrite 的主機
 - 若調整部署路徑、網域根目錄或靜態資源位置，請同步檢查 `vite.config.ts` 與相關連結設定
+- 若調整路由策略，請同步檢查 `src/router/index.ts` 與 GitHub Pages 部署行為是否一致

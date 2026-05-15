@@ -37,10 +37,10 @@ function generateDiscountRoute(): Plugin {
     apply: 'build',
     closeBundle() {
       const dist = fileURLToPath(new URL('./dist', import.meta.url))
-      const html = readFileSync(`${dist}/discount.html`, 'utf-8')
+      const discountHtml = readFileSync(`${dist}/discount.html`, 'utf-8')
 
       mkdirSync(`${dist}/discount`, { recursive: true })
-      writeFileSync(`${dist}/discount/index.html`, html)
+      writeFileSync(`${dist}/discount/index.html`, discountHtml)
     },
   }
 }
