@@ -153,19 +153,23 @@ function extractArtistNames(text, artistLookup) {
 function parseReserveName(title, artistLookup) {
   // A: 標準格式（YYYY/MM/DD，允許多餘空白）
   const fA = title.match(
-    /^(\d{4}\/\d{2}\/\d{2})\s+(\d{2}:\d{2})-\d{2}:\d{2}\s+(.+)$/,
+    /^(\d{4}\/\d{2}\/\d{2})\s+(\d{2}:\d{2})-(\d{2}:\d{2})\s+(.+)$/,
   )
   if (fA)
     return {
-      time: `${fA[1]} ${fA[2]}`,
-      artistNames: extractArtistNames(fA[3], artistLookup),
+      date: fA[1],
+      startTime: fA[2],
+      endTime: fA[3],
+      artistNames: extractArtistNames(fA[4], artistLookup),
     }
 
   // D: YYYYMMDDHHMM（12 位，無分隔符，不帶冒號）
   const fD = title.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})([^\d].*)$/)
   if (fD)
     return {
-      time: `${fD[1]}/${fD[2]}/${fD[3]} ${fD[4]}:${fD[5]}`,
+      date: `${fD[1]}/${fD[2]}/${fD[3]}`,
+      startTime: `${fD[4]}:${fD[5]}`,
+      endTime: '',
       artistNames: extractArtistNames(fD[6], artistLookup),
     }
 
@@ -173,20 +177,24 @@ function parseReserveName(title, artistLookup) {
   const fE = title.match(/^(\d{4})(\d{2})(\d{2})([^\d].*)$/)
   if (fE)
     return {
-      time: `${fE[1]}/${fE[2]}/${fE[3]}`,
+      date: `${fE[1]}/${fE[2]}/${fE[3]}`,
+      startTime: '',
+      endTime: '',
       artistNames: extractArtistNames(fE[4], artistLookup),
     }
 
   // B/C: M/D HH:mm-HH:mm（短日期，日期與時間間允許無空格）
   const fBC = title.match(
-    /^(\d{1,2})\/(\d{1,2})\s*(\d{2}:\d{2})-\d{2}:\d{2}\s*(.+)$/,
+    /^(\d{1,2})\/(\d{1,2})\s*(\d{2}:\d{2})-(\d{2}:\d{2})\s*(.+)$/,
   )
   if (fBC) {
     const mm = fBC[1].padStart(2, '0'),
       dd = fBC[2].padStart(2, '0')
     return {
-      time: `2026/${mm}/${dd} ${fBC[3]}`,
-      artistNames: extractArtistNames(fBC[4], artistLookup),
+      date: `2026/${mm}/${dd}`,
+      startTime: fBC[3],
+      endTime: fBC[4],
+      artistNames: extractArtistNames(fBC[5], artistLookup),
     }
   }
 
@@ -194,11 +202,13 @@ function parseReserveName(title, artistLookup) {
   const fF = title.match(/^(\d{2})(\d{2})(\d{2}:\d{2})(.+)$/)
   if (fF)
     return {
-      time: `2026/${fF[1]}/${fF[2]} ${fF[3]}`,
+      date: `2026/${fF[1]}/${fF[2]}`,
+      startTime: fF[3],
+      endTime: '',
       artistNames: extractArtistNames(fF[4], artistLookup),
     }
 
-  return { time: '', artistNames: [] }
+  return { date: '', startTime: '', endTime: '', artistNames: [] }
 }
 
 // ── GetReserveInfo → sessions ────────────────────────────────────────────────
@@ -246,8 +256,11 @@ for (const event of events) {
   console.log(`Event ${event.id} "${event.name}": ${raw.length} sessions`)
 
   for (const { id, title } of raw) {
-    const { time, artistNames } = parseReserveName(title, artistLookup)
-    if (!time) {
+    const { date, startTime, endTime, artistNames } = parseReserveName(
+      title,
+      artistLookup,
+    )
+    if (!date) {
       unparsedSessions.push({ id, eventId: event.id, title })
     }
 
@@ -274,7 +287,15 @@ for (const event of events) {
         if (!artistIds.includes(aid)) artistIds.push(aid)
       }
     }
-    allSessions.push({ id, eventId: event.id, title, time, artistIds })
+    allSessions.push({
+      id,
+      eventId: event.id,
+      title,
+      date,
+      startTime,
+      endTime,
+      artistIds,
+    })
   }
 }
 

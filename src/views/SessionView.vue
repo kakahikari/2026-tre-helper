@@ -80,7 +80,7 @@
     if (!q) return afterFavorite
     return afterFavorite.filter(
       s =>
-        s.activity.includes(q) ||
+        s.title.includes(q) ||
         s.stage.includes(q) ||
         s.artistIds.some(id => (artistMap.get(id) ?? '').includes(q)),
     )
@@ -114,7 +114,7 @@
   // 僅含有效時間的場次，依選定日期篩選，再依搜尋字串篩選
   const filteredSessions = computed(() => {
     const base = sessions.filter(
-      s => s.time.startsWith(activeDate.value) && s.time.length > 10,
+      s => s.date === activeDate.value && s.startTime !== '',
     )
     const afterFavorite = showMySchedule.value
       ? base.filter(s => isFavorite(s.id))
@@ -145,7 +145,7 @@
   const timeSlots = computed(() => {
     const times = new Set<string>()
     if (showSessions.value) {
-      for (const s of filteredSessions.value) times.add(s.time.slice(11))
+      for (const s of filteredSessions.value) times.add(s.startTime)
     }
     if (showStages.value) {
       for (const s of filteredStages.value) times.add(s.startTime)
@@ -157,7 +157,7 @@
   const grid = computed(() => {
     const map = new Map<string, Map<number, Session[]>>()
     for (const s of filteredSessions.value) {
-      const time = s.time.slice(11)
+      const time = s.startTime
       if (!map.has(time)) map.set(time, new Map())
       const row = map.get(time)!
       if (!row.has(s.eventId)) row.set(s.eventId, [])
@@ -259,7 +259,7 @@
         .filter(Boolean)
         .join('、')
     }
-    return s.activity
+    return s.title
   }
 
   function selectViewMode(value: ViewMode) {

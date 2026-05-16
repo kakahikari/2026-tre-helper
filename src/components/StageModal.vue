@@ -35,7 +35,7 @@
         .filter(Boolean)
         .join('、')
     }
-    return s.activity
+    return s.title
   }
 
   function onKeydown(e: KeyboardEvent) {
@@ -91,7 +91,7 @@ teleport(to='body')
         div(class='flex flex-col gap-4')
           div
             p(class='mb-1 text-xs tracking-[0.15em] text-white/40') 活動
-            p(class='font-serif-tc text-sm text-white/80') {{ stage.activity }}
+            p(class='font-serif-tc text-sm text-white/80') {{ stage.title }}
           div
             p(class='mb-1 text-xs tracking-[0.15em] text-white/40') 舞台
             p(class='font-serif-tc text-sm text-white/80') {{ stage.stage }}

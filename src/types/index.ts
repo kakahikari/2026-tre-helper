@@ -28,14 +28,14 @@ export interface ResolvedBooth extends Omit<Booth, 'artistIds'> {
   artists: Artist[]
 }
 
-// 主舞台時刻表
+// 舞台場次
 export interface Stage {
   id: number
   stage: string
   date: string
   startTime: string
   endTime: string
-  activity: string
+  title: string
   artistIds: number[]
 }
 
@@ -44,7 +44,9 @@ export interface Session {
   id: number // checkInGroupId
   eventId: number // 所屬活動 id
   title: string // 場次名稱
-  time: string // 從標題解析出的時間，格式 "YYYY/MM/DD HH:mm"
+  date: string // 日期，格式 "YYYY/MM/DD"
+  startTime: string // 開始時間，格式 "HH:mm"；date-only 場次為 ""
+  endTime: string // 結束時間，格式 "HH:mm"；無結束時間時為 ""
   artistIds: number[] // 從標題解析出的藝人 id 列表
 }
 
