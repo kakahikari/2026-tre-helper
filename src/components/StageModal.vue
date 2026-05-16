@@ -1,14 +1,27 @@
 <script setup lang="ts">
-  import { onMounted, onUnmounted } from 'vue'
+  import { onMounted, onUnmounted, watch } from 'vue'
+  import { useScrollLock } from '@vueuse/core'
   import type { Stage, Artist, Event } from '@/types/index'
   import artistsData from '@/data/artists.json'
   import eventsData from '@/data/events.json'
   import { useStagesFavorites } from '@/composables/useStagesFavorites'
   import { useRouter } from 'vue-router'
 
-  defineProps<{
+  const props = defineProps<{
     stage: Stage | null
   }>()
+
+  const isScrollLocked = useScrollLock(document.body)
+  watch(
+    () => props.stage,
+    val => {
+      isScrollLocked.value = val !== null
+    },
+    { immediate: true },
+  )
+  onUnmounted(() => {
+    isScrollLocked.value = false
+  })
 
   const emit = defineEmits<{
     close: []

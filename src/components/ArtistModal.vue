@@ -1,5 +1,6 @@
 <script setup lang="ts">
-  import { computed, onMounted, onUnmounted } from 'vue'
+  import { computed, onMounted, onUnmounted, watch } from 'vue'
+  import { useScrollLock } from '@vueuse/core'
   import type { Artist, Booth, Event } from '@/types/index'
   import booths from '@/data/booths.json'
   import events from '@/data/events.json'
@@ -9,6 +10,18 @@
   const props = defineProps<{
     artist: Artist | null
   }>()
+
+  const isScrollLocked = useScrollLock(document.body)
+  watch(
+    () => props.artist,
+    val => {
+      isScrollLocked.value = val !== null
+    },
+    { immediate: true },
+  )
+  onUnmounted(() => {
+    isScrollLocked.value = false
+  })
 
   const emit = defineEmits<{
     close: []
