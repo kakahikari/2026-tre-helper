@@ -168,8 +168,7 @@
 
   function shortEventName(eventId: number): string {
     const name = eventNameMap.get(eventId) ?? String(eventId)
-    const cleaned = name.replace(/^2026\s*(?:TRE\s*)?/i, '')
-    return cleaned.length > 12 ? cleaned.slice(0, 12) + '…' : cleaned
+    return name.replace(/^2026\s*(?:TRE\s*)?/i, '')
   }
 
   function artistNames(s: Session): string {
@@ -347,7 +346,10 @@ div(class='min-h-screen')
   //- 格線
   div(class='px-2 pt-2 pb-8 sm:px-6 sm:pt-4 sm:pb-12')
     div(v-if='timeSlots.length' class='overflow-x-auto rounded-lg border border-white/8')
-      table(class='min-w-max border-collapse text-xs' @mouseleave='clearHover')
+      table(
+        class='min-w-max table-fixed border-collapse text-xs'
+        @mouseleave='clearHover'
+      )
         thead
           tr
             th(
@@ -357,7 +359,7 @@ div(class='min-h-screen')
               th(
                 v-for='stageName in activeStageNames',
                 :key='stageName'
-                class='w-20 border-r border-b border-white/8 px-1 py-1 text-center text-xs font-normal transition-colors duration-150 sm:w-28 sm:px-2 sm:py-2',
+                class='w-20 border-r border-b border-white/8 px-1 py-1 text-center text-xs font-normal wrap-break-word transition-colors duration-150 sm:w-28 sm:px-2 sm:py-2',
                 :class='stageHeaderClass(stageName)'
                 @mouseenter='hoveredStageName = stageName'
                 @mouseleave='hoveredStageName = null'
@@ -366,7 +368,7 @@ div(class='min-h-screen')
               v-for='eid in activeEventIds',
               :key='eid',
               :title='eventNameMap.get(eid)'
-              class='w-20 border-r border-b border-white/8 px-1 py-1 text-center text-xs leading-snug font-normal transition-colors duration-150 sm:w-28 sm:px-2 sm:py-2',
+              class='w-20 border-r border-b border-white/8 px-1 py-1 text-center text-xs leading-snug font-normal wrap-break-word transition-colors duration-150 sm:w-28 sm:px-2 sm:py-2',
               :class='hoveredEid === eid ? "bg-zinc-800 text-white/90" : "bg-zinc-950 text-white/60"'
               @mouseenter='hoveredEid = eid'
               @mouseleave='hoveredEid = null'
@@ -386,7 +388,7 @@ div(class='min-h-screen')
               td(
                 v-for='stageName in activeStageNames',
                 :key='stageName'
-                class='border-r border-b border-white/6 px-0.5 py-0.5 align-top transition-colors duration-150 sm:px-1.5 sm:py-1',
+                class='overflow-hidden border-r border-b border-white/6 px-0.5 py-0.5 align-top transition-colors duration-150 sm:px-1.5 sm:py-1',
                 :class='stageCellBg(stageName, time)'
                 @mouseenter='hoveredStageName = stageName'
                 @mouseleave='hoveredStageName = null'
@@ -396,13 +398,13 @@ div(class='min-h-screen')
                     v-for='s in stageGrid.get(stageName)?.get(time)',
                     :key='s.id'
                     @click='selectedStage = s'
-                    class='font-serif-tc mb-0.5 cursor-pointer rounded px-1.5 py-0.5 leading-snug transition-colors duration-150',
+                    class='font-serif-tc mb-0.5 cursor-pointer rounded px-1.5 py-0.5 leading-snug wrap-break-word transition-colors duration-150',
                     :class='stageCardClass(s)'
                   ) {{ stageCardLabel(s) }}
             td(
               v-for='eid in activeEventIds',
               :key='eid'
-              class='border-r border-b border-white/6 px-0.5 py-0.5 align-top transition-colors duration-150 sm:px-1.5 sm:py-1',
+              class='overflow-hidden border-r border-b border-white/6 px-0.5 py-0.5 align-top transition-colors duration-150 sm:px-1.5 sm:py-1',
               :class='cellBg(time, eid)'
               @mouseenter='hoveredEid = eid'
               @mouseleave='hoveredEid = null'
@@ -412,7 +414,7 @@ div(class='min-h-screen')
                   v-for='s in grid.get(time)?.get(eid)',
                   :key='s.id'
                   @click='selectedSession = s'
-                  class='font-serif-tc mb-0.5 cursor-pointer rounded px-1.5 py-0.5 leading-snug text-white/90 transition-colors duration-150',
+                  class='font-serif-tc mb-0.5 cursor-pointer rounded px-1.5 py-0.5 leading-snug wrap-break-word text-white/90 transition-colors duration-150',
                   :class='sessionCardClass(s)'
                 ) {{ artistNames(s) }}
     p(v-else class='text-center text-sm text-white/40') 找不到符合的場次
