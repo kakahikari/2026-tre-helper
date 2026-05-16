@@ -70,7 +70,6 @@ span(v-html='icon')
 
 - 放在 `src/composables/` 目錄下，以 `use` 開頭命名（e.g. `useFavorites.ts`）
 - 需要跨元件共享的狀態，在模組層級（module-level）宣告 ref，函式內直接操作，所有呼叫端共享同一個實例
-- 本地持久化優先使用 VueUse 的 `useLocalStorage`，不直接操作 `window.localStorage`
 
 ```ts
 import { useLocalStorage } from '@vueuse/core'
@@ -84,9 +83,29 @@ export function useMyComposable() {
 }
 ```
 
+## Route Query 同步模式
+
+若 View 在 `setup` 時從 `route.query` 初始化 `ref`，且該 View 可能在已掛載狀態下被其他元件以 `router.push` 帶入新 query，需額外加反向 watcher，否則搜尋條件不會更新：
+
+```ts
+// 初始化（只執行一次）
+const query = ref((route.query.q as string) ?? '')
+
+// 反向同步：外部導航帶入新 q 時更新 ref
+watch(
+  () => route.query.q,
+  q => { query.value = (q as string) ?? '' },
+)
+```
+
 ## 部署注意事項
 
 - Vite `base` 目前設定為 `/2026-tre-helper/`
 - Vue Router 目前使用 hash mode 部署到 GitHub Pages，網址格式為 `/2026-tre-helper/#/...`，不要直接改回 history mode，除非同步補上靜態 fallback 或改用支援 rewrite 的主機
 - 若調整部署路徑、網域根目錄或靜態資源位置，請同步檢查 `vite.config.ts` 與相關連結設定
 - 若調整路由策略，請同步檢查 `src/router/index.ts` 與 GitHub Pages 部署行為是否一致
+
+## NEVER
+
+- **不可在 Vue template / Pug 屬性字串中使用 TypeScript `!` 非空斷言**：`foo.bar!` 在 template 編譯後會產生 runtime `SyntaxError`。請改用 `v-if` guard 或 `?? fallback`
+- **不可直接操作 `window.localStorage`**：請使用 VueUse 的 `useLocalStorage`
