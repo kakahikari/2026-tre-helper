@@ -36,6 +36,7 @@ export interface Stage {
   startTime: string
   endTime: string
   title: string
+  eventId?: number // 所屬活動 id，無對應活動時省略
   artistIds: number[]
 }
 

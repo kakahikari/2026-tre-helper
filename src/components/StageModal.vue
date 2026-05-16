@@ -1,7 +1,8 @@
 <script setup lang="ts">
   import { onMounted, onUnmounted } from 'vue'
-  import type { Stage, Artist } from '@/types/index'
+  import type { Stage, Artist, Event } from '@/types/index'
   import artistsData from '@/data/artists.json'
+  import eventsData from '@/data/events.json'
   import { useStagesFavorites } from '@/composables/useStagesFavorites'
   import { useRouter } from 'vue-router'
 
@@ -14,10 +15,18 @@
   }>()
 
   const artists = artistsData as Artist[]
+  const events = eventsData as Event[]
+
   const artistMap = new Map<number, string>(artists.map(a => [a.id, a.name]))
+  const eventNameMap = new Map<number, string>(events.map(e => [e.id, e.name]))
 
   const router = useRouter()
   const { isFavorite, toggleFavorite } = useStagesFavorites()
+
+  function goToSessions(eventName: string) {
+    emit('close')
+    router.push({ name: 'sessions', query: { q: eventName } })
+  }
 
   function goToArtists(artistName: string) {
     emit('close')
@@ -90,8 +99,22 @@ teleport(to='body')
               path(d='m6 6 12 12')
         div(class='flex flex-col gap-4')
           div
-            p(class='mb-1 text-xs tracking-[0.15em] text-white/40') 活動
+            p(class='mb-1 text-xs tracking-[0.15em] text-white/40') 場次名稱
             p(class='font-serif-tc text-sm text-white/80') {{ stage.title }}
+          div(v-if='stage.eventId')
+            p(class='mb-1 text-xs tracking-[0.15em] text-white/40') 活動
+            div(class='flex items-center gap-2')
+              button(
+                @click='goToSessions(eventNameMap.get(stage.eventId) ?? "")'
+                class='font-serif-tc hover:text-accent cursor-pointer border-none bg-transparent p-0 text-left text-sm text-white transition-colors duration-200'
+              ) {{ eventNameMap.get(stage.eventId) }}
+              a(
+                :href='`https://jkface.net/events/${stage.eventId}`'
+                target='_blank'
+                rel='noopener noreferrer'
+                class='hover:text-accent shrink-0 text-white/40 transition-colors duration-200'
+              )
+                span(v-html='externalIcon')
           div
             p(class='mb-1 text-xs tracking-[0.15em] text-white/40') 舞台
             p(class='font-serif-tc text-sm text-white/80') {{ stage.stage }}
