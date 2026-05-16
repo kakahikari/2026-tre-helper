@@ -1,0 +1,488 @@
+[
+  {
+    "id": 1,
+    "stage": "主舞台",
+    "date": "2026/07/03",
+    "startTime": "09:50",
+    "endTime": "10:30",
+    "activity": "TRE女優出場",
+    "artistIds": []
+  },
+  {
+    "id": 3,
+    "stage": "主舞台",
+    "date": "2026/07/03",
+    "startTime": "11:15",
+    "endTime": "11:30",
+    "activity": "粉絲互動時間",
+    "artistIds": [5846923]
+  },
+  {
+    "id": 4,
+    "stage": "主舞台",
+    "date": "2026/07/03",
+    "startTime": "11:30",
+    "endTime": "11:45",
+    "activity": "粉絲互動時間",
+    "artistIds": [5888976]
+  },
+  {
+    "id": 5,
+    "stage": "主舞台",
+    "date": "2026/07/03",
+    "startTime": "11:45",
+    "endTime": "12:00",
+    "activity": "粉絲互動時間",
+    "artistIds": [5647098]
+  },
+  {
+    "id": 6,
+    "stage": "主舞台",
+    "date": "2026/07/03",
+    "startTime": "12:30",
+    "endTime": "12:45",
+    "activity": "粉絲互動時間",
+    "artistIds": [5847085]
+  },
+  {
+    "id": 7,
+    "stage": "主舞台",
+    "date": "2026/07/03",
+    "startTime": "12:45",
+    "endTime": "13:00",
+    "activity": "粉絲互動時間",
+    "artistIds": [5847086]
+  },
+  {
+    "id": 9,
+    "stage": "主舞台",
+    "date": "2026/07/03",
+    "startTime": "13:25",
+    "endTime": "13:40",
+    "activity": "粉絲互動時間",
+    "artistIds": [6038847]
+  },
+  {
+    "id": 10,
+    "stage": "主舞台",
+    "date": "2026/07/03",
+    "startTime": "13:40",
+    "endTime": "13:55",
+    "activity": "粉絲互動時間",
+    "artistIds": [5888983]
+  },
+  {
+    "id": 11,
+    "stage": "主舞台",
+    "date": "2026/07/03",
+    "startTime": "13:55",
+    "endTime": "14:10",
+    "activity": "粉絲互動時間",
+    "artistIds": [5888980]
+  },
+  {
+    "id": 12,
+    "stage": "主舞台",
+    "date": "2026/07/03",
+    "startTime": "14:10",
+    "endTime": "14:40",
+    "activity": "女優福利社",
+    "artistIds": [5846915, 5925814, 6200033, 5925807, 6200031, 5903291]
+  },
+  {
+    "id": 13,
+    "stage": "主舞台",
+    "date": "2026/07/03",
+    "startTime": "15:00",
+    "endTime": "15:30",
+    "activity": "女優福利社",
+    "artistIds": [5903295, 6069146, 5846911, 6055368, 6000030, 6200030]
+  },
+  {
+    "id": 14,
+    "stage": "主舞台",
+    "date": "2026/07/03",
+    "startTime": "15:30",
+    "endTime": "15:45",
+    "activity": "粉絲互動時間",
+    "artistIds": [5846909]
+  },
+  {
+    "id": 15,
+    "stage": "主舞台",
+    "date": "2026/07/03",
+    "startTime": "15:45",
+    "endTime": "16:00",
+    "activity": "粉絲互動時間",
+    "artistIds": [5846926]
+  },
+  {
+    "id": 16,
+    "stage": "主舞台",
+    "date": "2026/07/03",
+    "startTime": "16:10",
+    "endTime": "16:40",
+    "activity": "女優福利社",
+    "artistIds": [5888971, 5903547, 6040199, 5903304, 6200032, 5903320]
+  },
+  {
+    "id": 17,
+    "stage": "主舞台",
+    "date": "2026/07/03",
+    "startTime": "16:40",
+    "endTime": "16:55",
+    "activity": "粉絲互動時間",
+    "artistIds": [5845129]
+  },
+  {
+    "id": 18,
+    "stage": "主舞台",
+    "date": "2026/07/03",
+    "startTime": "16:55",
+    "endTime": "17:10",
+    "activity": "粉絲互動時間",
+    "artistIds": [5564317]
+  },
+  {
+    "id": 20,
+    "stage": "主舞台",
+    "date": "2026/07/03",
+    "startTime": "17:30",
+    "endTime": "17:45",
+    "activity": "粉絲互動時間",
+    "artistIds": [5675902]
+  },
+  {
+    "id": 21,
+    "stage": "主舞台",
+    "date": "2026/07/04",
+    "startTime": "09:50",
+    "endTime": "10:30",
+    "activity": "TRE女優出場",
+    "artistIds": []
+  },
+  {
+    "id": 23,
+    "stage": "主舞台",
+    "date": "2026/07/04",
+    "startTime": "11:15",
+    "endTime": "11:30",
+    "activity": "粉絲互動時間",
+    "artistIds": [5846923]
+  },
+  {
+    "id": 24,
+    "stage": "主舞台",
+    "date": "2026/07/04",
+    "startTime": "11:30",
+    "endTime": "11:45",
+    "activity": "粉絲互動時間",
+    "artistIds": [5888976]
+  },
+  {
+    "id": 25,
+    "stage": "主舞台",
+    "date": "2026/07/04",
+    "startTime": "11:45",
+    "endTime": "12:00",
+    "activity": "粉絲互動時間",
+    "artistIds": [5647098]
+  },
+  {
+    "id": 26,
+    "stage": "主舞台",
+    "date": "2026/07/04",
+    "startTime": "12:30",
+    "endTime": "12:45",
+    "activity": "粉絲互動時間",
+    "artistIds": [5847085]
+  },
+  {
+    "id": 27,
+    "stage": "主舞台",
+    "date": "2026/07/04",
+    "startTime": "12:45",
+    "endTime": "13:00",
+    "activity": "粉絲互動時間",
+    "artistIds": [5847086]
+  },
+  {
+    "id": 29,
+    "stage": "主舞台",
+    "date": "2026/07/04",
+    "startTime": "13:25",
+    "endTime": "13:40",
+    "activity": "粉絲互動時間",
+    "artistIds": [6038847]
+  },
+  {
+    "id": 30,
+    "stage": "主舞台",
+    "date": "2026/07/04",
+    "startTime": "13:40",
+    "endTime": "13:55",
+    "activity": "粉絲互動時間",
+    "artistIds": [5888983]
+  },
+  {
+    "id": 31,
+    "stage": "主舞台",
+    "date": "2026/07/04",
+    "startTime": "13:55",
+    "endTime": "14:10",
+    "activity": "粉絲互動時間",
+    "artistIds": [5888980]
+  },
+  {
+    "id": 32,
+    "stage": "主舞台",
+    "date": "2026/07/04",
+    "startTime": "14:10",
+    "endTime": "14:40",
+    "activity": "女優福利社",
+    "artistIds": [5846915, 5925814, 6200033, 5925807, 6200031, 5903291]
+  },
+  {
+    "id": 33,
+    "stage": "主舞台",
+    "date": "2026/07/04",
+    "startTime": "15:00",
+    "endTime": "15:30",
+    "activity": "女優福利社",
+    "artistIds": [5903295, 6069146, 5846911, 6055368, 6000030, 6200030]
+  },
+  {
+    "id": 34,
+    "stage": "主舞台",
+    "date": "2026/07/04",
+    "startTime": "15:30",
+    "endTime": "15:45",
+    "activity": "粉絲互動時間",
+    "artistIds": [5846909]
+  },
+  {
+    "id": 35,
+    "stage": "主舞台",
+    "date": "2026/07/04",
+    "startTime": "15:45",
+    "endTime": "16:00",
+    "activity": "粉絲互動時間",
+    "artistIds": [5846926]
+  },
+  {
+    "id": 36,
+    "stage": "主舞台",
+    "date": "2026/07/04",
+    "startTime": "16:10",
+    "endTime": "16:40",
+    "activity": "女優福利社",
+    "artistIds": [5888971, 5903547, 6040199, 5903304, 6200032, 5903320]
+  },
+  {
+    "id": 37,
+    "stage": "主舞台",
+    "date": "2026/07/04",
+    "startTime": "16:40",
+    "endTime": "16:55",
+    "activity": "粉絲互動時間",
+    "artistIds": [5845129]
+  },
+  {
+    "id": 38,
+    "stage": "主舞台",
+    "date": "2026/07/04",
+    "startTime": "16:55",
+    "endTime": "17:10",
+    "activity": "粉絲互動時間",
+    "artistIds": [5564317]
+  },
+  {
+    "id": 40,
+    "stage": "主舞台",
+    "date": "2026/07/04",
+    "startTime": "17:30",
+    "endTime": "17:45",
+    "activity": "粉絲互動時間",
+    "artistIds": [5675902]
+  },
+  {
+    "id": 41,
+    "stage": "主舞台",
+    "date": "2026/07/05",
+    "startTime": "09:50",
+    "endTime": "10:30",
+    "activity": "TRE女優出場",
+    "artistIds": []
+  },
+  {
+    "id": 43,
+    "stage": "主舞台",
+    "date": "2026/07/05",
+    "startTime": "11:15",
+    "endTime": "11:30",
+    "activity": "粉絲互動時間",
+    "artistIds": [5846923]
+  },
+  {
+    "id": 44,
+    "stage": "主舞台",
+    "date": "2026/07/05",
+    "startTime": "11:30",
+    "endTime": "11:45",
+    "activity": "粉絲互動時間",
+    "artistIds": [5888976]
+  },
+  {
+    "id": 45,
+    "stage": "主舞台",
+    "date": "2026/07/05",
+    "startTime": "11:45",
+    "endTime": "12:00",
+    "activity": "粉絲互動時間",
+    "artistIds": [5647098]
+  },
+  {
+    "id": 46,
+    "stage": "主舞台",
+    "date": "2026/07/05",
+    "startTime": "12:30",
+    "endTime": "12:45",
+    "activity": "粉絲互動時間",
+    "artistIds": [5847085]
+  },
+  {
+    "id": 47,
+    "stage": "主舞台",
+    "date": "2026/07/05",
+    "startTime": "12:45",
+    "endTime": "13:00",
+    "activity": "粉絲互動時間",
+    "artistIds": [5847086]
+  },
+  {
+    "id": 49,
+    "stage": "主舞台",
+    "date": "2026/07/05",
+    "startTime": "13:25",
+    "endTime": "13:40",
+    "activity": "粉絲互動時間",
+    "artistIds": [6038847]
+  },
+  {
+    "id": 50,
+    "stage": "主舞台",
+    "date": "2026/07/05",
+    "startTime": "13:40",
+    "endTime": "13:55",
+    "activity": "粉絲互動時間",
+    "artistIds": [5888983]
+  },
+  {
+    "id": 51,
+    "stage": "主舞台",
+    "date": "2026/07/05",
+    "startTime": "13:55",
+    "endTime": "14:10",
+    "activity": "粉絲互動時間",
+    "artistIds": [5888980]
+  },
+  {
+    "id": 52,
+    "stage": "主舞台",
+    "date": "2026/07/05",
+    "startTime": "14:10",
+    "endTime": "14:40",
+    "activity": "女優福利社",
+    "artistIds": [5846915, 5925814, 6200033, 5925807, 6200031, 5903291]
+  },
+  {
+    "id": 53,
+    "stage": "主舞台",
+    "date": "2026/07/05",
+    "startTime": "15:00",
+    "endTime": "15:30",
+    "activity": "女優福利社",
+    "artistIds": [5903295, 6069146, 5846911, 6055368, 6000030, 6200030]
+  },
+  {
+    "id": 54,
+    "stage": "主舞台",
+    "date": "2026/07/05",
+    "startTime": "15:30",
+    "endTime": "15:45",
+    "activity": "粉絲互動時間",
+    "artistIds": [5846909]
+  },
+  {
+    "id": 55,
+    "stage": "主舞台",
+    "date": "2026/07/05",
+    "startTime": "15:45",
+    "endTime": "16:00",
+    "activity": "粉絲互動時間",
+    "artistIds": [5846926]
+  },
+  {
+    "id": 56,
+    "stage": "主舞台",
+    "date": "2026/07/05",
+    "startTime": "16:10",
+    "endTime": "16:40",
+    "activity": "女優福利社",
+    "artistIds": [5888971, 5903547, 6040199, 5903304, 6200032, 5903320]
+  },
+  {
+    "id": 57,
+    "stage": "主舞台",
+    "date": "2026/07/05",
+    "startTime": "16:40",
+    "endTime": "16:55",
+    "activity": "粉絲互動時間",
+    "artistIds": [5845129]
+  },
+  {
+    "id": 58,
+    "stage": "主舞台",
+    "date": "2026/07/05",
+    "startTime": "16:55",
+    "endTime": "17:10",
+    "activity": "粉絲互動時間",
+    "artistIds": [5564317]
+  },
+  {
+    "id": 60,
+    "stage": "主舞台",
+    "date": "2026/07/05",
+    "startTime": "17:30",
+    "endTime": "17:45",
+    "activity": "粉絲互動時間",
+    "artistIds": [5675902]
+  },
+  {
+    "id": 62,
+    "stage": "AV+ VIP舞台",
+    "date": "2026/07/03",
+    "startTime": "11:40",
+    "endTime": "11:50",
+    "activity": "年度代言人石川澪互動回饋時間",
+    "artistIds": [5847085]
+  },
+  {
+    "id": 69,
+    "stage": "AV+ VIP舞台",
+    "date": "2026/07/04",
+    "startTime": "11:40",
+    "endTime": "11:50",
+    "activity": "年度代言人石川澪互動回饋時間",
+    "artistIds": [5847085]
+  },
+  {
+    "id": 76,
+    "stage": "AV+ VIP舞台",
+    "date": "2026/07/05",
+    "startTime": "11:40",
+    "endTime": "11:50",
+    "activity": "年度代言人石川澪互動回饋時間",
+    "artistIds": [5847085]
+  }
+]

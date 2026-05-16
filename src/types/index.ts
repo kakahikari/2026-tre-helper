@@ -28,6 +28,17 @@ export interface ResolvedBooth extends Omit<Booth, 'artistIds'> {
   artists: Artist[]
 }
 
+// 主舞台時刻表
+export interface Stage {
+  id: number
+  stage: string
+  date: string
+  startTime: string
+  endTime: string
+  activity: string
+  artistIds: number[]
+}
+
 // 活動場次（來源：GetReserveInfo API）
 export interface Session {
   id: number // checkInGroupId
