@@ -205,6 +205,14 @@
     },
   )
 
+  // 從其他元件（如 StageModal）導航至此並帶入新 q 時，同步更新搜尋框
+  watch(
+    () => route.query.q,
+    q => {
+      query.value = (q as string) ?? ''
+    },
+  )
+
   function sessionCardClass(s: Session): string {
     return isFavorite(s.id)
       ? 'bg-accent/25 hover:bg-accent/40'
