@@ -101,6 +101,12 @@ teleport(to='body')
           div
             p(class='mb-1 text-xs tracking-[0.15em] text-white/40') 場次名稱
             p(class='font-serif-tc text-sm text-white/80') {{ stage.title }}
+          div
+            p(class='mb-1 text-xs tracking-[0.15em] text-white/40') 時間
+            p(class='font-mono text-sm text-white/80') {{ stage.date }} {{ stage.startTime }}–{{ stage.endTime }}
+          div
+            p(class='mb-1 text-xs tracking-[0.15em] text-white/40') 舞台
+            p(class='font-serif-tc text-sm text-white/80') {{ stage.stage }}
           div(v-if='stage.eventId')
             p(class='mb-1 text-xs tracking-[0.15em] text-white/40') 活動
             div(class='flex items-center gap-2')
@@ -115,12 +121,6 @@ teleport(to='body')
                 class='hover:text-accent shrink-0 text-white/40 transition-colors duration-200'
               )
                 span(v-html='externalIcon')
-          div
-            p(class='mb-1 text-xs tracking-[0.15em] text-white/40') 舞台
-            p(class='font-serif-tc text-sm text-white/80') {{ stage.stage }}
-          div
-            p(class='mb-1 text-xs tracking-[0.15em] text-white/40') 時間
-            p(class='font-mono text-sm text-white/80') {{ stage.date }} {{ stage.startTime }}–{{ stage.endTime }}
           div(v-if='stage.artistIds.length')
             p(class='mb-2 text-xs tracking-[0.15em] text-white/40') 女優
             ul(class='flex flex-col gap-1.5')

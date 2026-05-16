@@ -94,7 +94,9 @@ const query = ref((route.query.q as string) ?? '')
 // 反向同步：外部導航帶入新 q 時更新 ref
 watch(
   () => route.query.q,
-  q => { query.value = (q as string) ?? '' },
+  q => {
+    query.value = (q as string) ?? ''
+  },
 )
 ```
 

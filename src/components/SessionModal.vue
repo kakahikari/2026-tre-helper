@@ -96,6 +96,9 @@ teleport(to='body')
             p(class='mb-1 text-xs tracking-[0.15em] text-white/40') 場次名稱
             p(class='font-serif-tc text-sm leading-relaxed text-white/80') {{ session.title }}
           div
+            p(class='mb-1 text-xs tracking-[0.15em] text-white/40') 時間
+            p(class='font-mono text-sm text-white/80') {{ session.date }}{{ session.startTime ? ' ' + session.startTime + '–' + session.endTime : '' }}
+          div
             p(class='mb-1 text-xs tracking-[0.15em] text-white/40') 活動
             div(class='flex items-center gap-2')
               button(
