@@ -9,6 +9,15 @@
     "artistIds": []
   },
   {
+    "id": 2,
+    "stage": "主舞台",
+    "date": "2026/07/03",
+    "startTime": "10:50",
+    "endTime": "11:15",
+    "activity": "白金女優High Five會",
+    "artistIds": [5846923]
+  },
+  {
     "id": 3,
     "stage": "主舞台",
     "date": "2026/07/03",
@@ -52,6 +61,15 @@
     "endTime": "13:00",
     "activity": "粉絲互動時間",
     "artistIds": [5847086]
+  },
+  {
+    "id": 8,
+    "stage": "主舞台",
+    "date": "2026/07/03",
+    "startTime": "13:00",
+    "endTime": "13:25",
+    "activity": "白金女優High Five會",
+    "artistIds": [6038847]
   },
   {
     "id": 9,
@@ -144,6 +162,15 @@
     "artistIds": [5564317]
   },
   {
+    "id": 19,
+    "stage": "主舞台",
+    "date": "2026/07/03",
+    "startTime": "17:10",
+    "endTime": "17:30",
+    "activity": "白金女優High Five會",
+    "artistIds": [5675902]
+  },
+  {
     "id": 20,
     "stage": "主舞台",
     "date": "2026/07/03",
@@ -160,6 +187,15 @@
     "endTime": "10:30",
     "activity": "TRE女優出場",
     "artistIds": []
+  },
+  {
+    "id": 22,
+    "stage": "主舞台",
+    "date": "2026/07/04",
+    "startTime": "10:50",
+    "endTime": "11:15",
+    "activity": "白金女優High Five會",
+    "artistIds": [5846923]
   },
   {
     "id": 23,
@@ -205,6 +241,15 @@
     "endTime": "13:00",
     "activity": "粉絲互動時間",
     "artistIds": [5847086]
+  },
+  {
+    "id": 28,
+    "stage": "主舞台",
+    "date": "2026/07/04",
+    "startTime": "13:00",
+    "endTime": "13:25",
+    "activity": "白金女優High Five會",
+    "artistIds": [6038847]
   },
   {
     "id": 29,
@@ -297,6 +342,15 @@
     "artistIds": [5564317]
   },
   {
+    "id": 39,
+    "stage": "主舞台",
+    "date": "2026/07/04",
+    "startTime": "17:10",
+    "endTime": "17:30",
+    "activity": "白金女優High Five會",
+    "artistIds": [5675902]
+  },
+  {
     "id": 40,
     "stage": "主舞台",
     "date": "2026/07/04",
@@ -313,6 +367,15 @@
     "endTime": "10:30",
     "activity": "TRE女優出場",
     "artistIds": []
+  },
+  {
+    "id": 42,
+    "stage": "主舞台",
+    "date": "2026/07/05",
+    "startTime": "10:50",
+    "endTime": "11:15",
+    "activity": "白金女優High Five會",
+    "artistIds": [5846923]
   },
   {
     "id": 43,
@@ -358,6 +421,15 @@
     "endTime": "13:00",
     "activity": "粉絲互動時間",
     "artistIds": [5847086]
+  },
+  {
+    "id": 48,
+    "stage": "主舞台",
+    "date": "2026/07/05",
+    "startTime": "13:00",
+    "endTime": "13:25",
+    "activity": "白金女優High Five會",
+    "artistIds": [6038847]
   },
   {
     "id": 49,
@@ -450,6 +522,15 @@
     "artistIds": [5564317]
   },
   {
+    "id": 59,
+    "stage": "主舞台",
+    "date": "2026/07/05",
+    "startTime": "17:10",
+    "endTime": "17:30",
+    "activity": "白金女優High Five會",
+    "artistIds": [5675902]
+  },
+  {
     "id": 60,
     "stage": "主舞台",
     "date": "2026/07/05",
@@ -459,12 +540,75 @@
     "artistIds": [5675902]
   },
   {
+    "id": 61,
+    "stage": "AV+ VIP舞台",
+    "date": "2026/07/03",
+    "startTime": "11:00",
+    "endTime": "11:40",
+    "activity": "變裝握手會",
+    "artistIds": [5847085]
+  },
+  {
     "id": 62,
     "stage": "AV+ VIP舞台",
     "date": "2026/07/03",
     "startTime": "11:40",
     "endTime": "11:50",
     "activity": "年度代言人石川澪互動回饋時間",
+    "artistIds": [5847085]
+  },
+  {
+    "id": 63,
+    "stage": "AV+ VIP舞台",
+    "date": "2026/07/03",
+    "startTime": "13:00",
+    "endTime": "13:40",
+    "activity": "變裝握手會",
+    "artistIds": [5846926]
+  },
+  {
+    "id": 64,
+    "stage": "AV+ VIP舞台",
+    "date": "2026/07/03",
+    "startTime": "14:00",
+    "endTime": "14:40",
+    "activity": "變裝握手會",
+    "artistIds": [5847086]
+  },
+  {
+    "id": 65,
+    "stage": "AV+ VIP舞台",
+    "date": "2026/07/03",
+    "startTime": "15:00",
+    "endTime": "15:40",
+    "activity": "變裝握手會",
+    "artistIds": [5675902]
+  },
+  {
+    "id": 66,
+    "stage": "AV+ VIP舞台",
+    "date": "2026/07/03",
+    "startTime": "16:20",
+    "endTime": "16:50",
+    "activity": "變裝握手會",
+    "artistIds": [5846923]
+  },
+  {
+    "id": 67,
+    "stage": "AV+ VIP舞台",
+    "date": "2026/07/03",
+    "startTime": "17:00",
+    "endTime": "17:45",
+    "activity": "變裝握手會",
+    "artistIds": [5888980]
+  },
+  {
+    "id": 68,
+    "stage": "AV+ VIP舞台",
+    "date": "2026/07/04",
+    "startTime": "11:00",
+    "endTime": "11:40",
+    "activity": "變裝握手會",
     "artistIds": [5847085]
   },
   {
@@ -477,6 +621,60 @@
     "artistIds": [5847085]
   },
   {
+    "id": 70,
+    "stage": "AV+ VIP舞台",
+    "date": "2026/07/04",
+    "startTime": "13:00",
+    "endTime": "13:40",
+    "activity": "變裝握手會",
+    "artistIds": [5647098]
+  },
+  {
+    "id": 71,
+    "stage": "AV+ VIP舞台",
+    "date": "2026/07/04",
+    "startTime": "14:10",
+    "endTime": "14:40",
+    "activity": "變裝握手會",
+    "artistIds": [6038847]
+  },
+  {
+    "id": 72,
+    "stage": "AV+ VIP舞台",
+    "date": "2026/07/04",
+    "startTime": "15:00",
+    "endTime": "15:50",
+    "activity": "變裝握手會",
+    "artistIds": [5888976]
+  },
+  {
+    "id": 73,
+    "stage": "AV+ VIP舞台",
+    "date": "2026/07/04",
+    "startTime": "16:20",
+    "endTime": "16:50",
+    "activity": "變裝握手會",
+    "artistIds": [5846923]
+  },
+  {
+    "id": 74,
+    "stage": "AV+ VIP舞台",
+    "date": "2026/07/04",
+    "startTime": "17:00",
+    "endTime": "17:45",
+    "activity": "變裝握手會",
+    "artistIds": [5888983]
+  },
+  {
+    "id": 75,
+    "stage": "AV+ VIP舞台",
+    "date": "2026/07/05",
+    "startTime": "11:00",
+    "endTime": "11:40",
+    "activity": "變裝握手會",
+    "artistIds": [5847085]
+  },
+  {
     "id": 76,
     "stage": "AV+ VIP舞台",
     "date": "2026/07/05",
@@ -484,5 +682,50 @@
     "endTime": "11:50",
     "activity": "年度代言人石川澪互動回饋時間",
     "artistIds": [5847085]
+  },
+  {
+    "id": 77,
+    "stage": "AV+ VIP舞台",
+    "date": "2026/07/05",
+    "startTime": "13:00",
+    "endTime": "13:40",
+    "activity": "變裝握手會",
+    "artistIds": [5846909]
+  },
+  {
+    "id": 78,
+    "stage": "AV+ VIP舞台",
+    "date": "2026/07/05",
+    "startTime": "14:10",
+    "endTime": "14:40",
+    "activity": "變裝握手會",
+    "artistIds": [6038847]
+  },
+  {
+    "id": 79,
+    "stage": "AV+ VIP舞台",
+    "date": "2026/07/05",
+    "startTime": "15:00",
+    "endTime": "15:40",
+    "activity": "變裝握手會",
+    "artistIds": [5675902]
+  },
+  {
+    "id": 80,
+    "stage": "AV+ VIP舞台",
+    "date": "2026/07/05",
+    "startTime": "16:00",
+    "endTime": "16:30",
+    "activity": "變裝握手會",
+    "artistIds": [5564317]
+  },
+  {
+    "id": 81,
+    "stage": "AV+ VIP舞台",
+    "date": "2026/07/05",
+    "startTime": "17:10",
+    "endTime": "17:45",
+    "activity": "變裝握手會",
+    "artistIds": [5845129]
   }
 ]
