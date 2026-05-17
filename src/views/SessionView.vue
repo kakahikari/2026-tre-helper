@@ -46,7 +46,6 @@
   )
   const query = ref((route.query.q as string) ?? '')
   const selectedSession = ref<Session | null>(null)
-  const hoveredTime = ref<string | null>(null)
   const hoveredEid = ref<number | null>(null)
   const hoveredStageName = ref<string | null>(null)
   const showMySchedule = ref(route.query.my === '1')
@@ -70,7 +69,6 @@
 
   const selectedStage = ref<Stage | null>(null)
 
-  // 依日期 + 我的行程 + 搜尋字串篩選舞台
   const filteredStages = computed(() => {
     const base = stages.filter(s => s.date === activeDate.value)
     const afterFavorite = showMySchedule.value
@@ -86,7 +84,6 @@
     )
   })
 
-  // 依首次出現順序取得該日有效舞台名稱
   const activeStageNames = computed(() => {
     const names: string[] = []
     const seen = new Set<string>()
@@ -99,19 +96,6 @@
     return names
   })
 
-  // Stage grid: stageName → startTime → Stage[]
-  const stageGrid = computed(() => {
-    const map = new Map<string, Map<string, Stage[]>>()
-    for (const s of filteredStages.value) {
-      if (!map.has(s.stage)) map.set(s.stage, new Map())
-      const inner = map.get(s.stage)!
-      if (!inner.has(s.startTime)) inner.set(s.startTime, [])
-      inner.get(s.startTime)!.push(s)
-    }
-    return map
-  })
-
-  // 僅含有效時間的場次，依選定日期篩選，再依搜尋字串篩選
   const filteredSessions = computed(() => {
     const base = sessions.filter(
       s => s.date === activeDate.value && s.startTime !== '',
@@ -128,7 +112,6 @@
     )
   })
 
-  // 依首次出現順序取得該日有效 eventId
   const activeEventIds = computed(() => {
     const ids: number[] = []
     const seen = new Set<number>()
@@ -141,30 +124,277 @@
     return ids
   })
 
-  // 排序後的時間段（合併場次與舞台）
-  const timeSlots = computed(() => {
-    const times = new Set<string>()
-    if (showSessions.value) {
-      for (const s of filteredSessions.value) times.add(s.startTime)
-    }
-    if (showStages.value) {
-      for (const s of filteredStages.value) times.add(s.startTime)
-    }
-    return [...times].sort()
+  const hasContent = computed(() => {
+    if (showSessions.value && filteredSessions.value.length > 0) return true
+    if (showStages.value && filteredStages.value.length > 0) return true
+    return false
   })
 
-  // grid: time → eventId → Session[]
-  const grid = computed(() => {
-    const map = new Map<string, Map<number, Session[]>>()
-    for (const s of filteredSessions.value) {
-      const time = s.startTime
-      if (!map.has(time)) map.set(time, new Map())
-      const row = map.get(time)!
-      if (!row.has(s.eventId)) row.set(s.eventId, [])
-      row.get(s.eventId)!.push(s)
+  // 行事曆版型常數
+  const HOUR_START = 9
+  const HOUR_END = 18
+  const MAX_PX_PER_MIN = 12
+  const DAY_START_MIN = HOUR_START * 60
+  const MIN_CARD_HEIGHT = 28
+  const BASE_COL_PX = 96 // 每個 lane 的基準寬度（px），欄位寬 = maxConcurrent × BASE_COL_PX
+
+  function durationMin(startTime: string, endTime: string): number {
+    const start = timeToMin(startTime)
+    const end = timeToMin(endTime)
+    if (isNaN(start) || isNaN(end) || end <= start) return 15
+    return end - start
+  }
+
+  function requiredPxPerMin<T>(
+    items: T[],
+    groupKey: (item: T) => string,
+    getStartTime: (item: T) => string,
+    getEndTime: (item: T) => string,
+  ): number {
+    if (items.length === 0) return 2
+
+    const groups = new Map<string, T[]>()
+    for (const item of items) {
+      const key = `${groupKey(item)}:${getStartTime(item)}`
+      const group = groups.get(key) ?? []
+      group.push(item)
+      groups.set(key, group)
     }
-    return map
+
+    let required = 2
+    for (const group of groups.values()) {
+      const maxDuration = Math.max(
+        ...group.map(item => durationMin(getStartTime(item), getEndTime(item))),
+      )
+      required = Math.max(
+        required,
+        (group.length * MIN_CARD_HEIGHT) / maxDuration,
+      )
+    }
+    return required
+  }
+
+  // 依目前顯示的同時段最大堆疊數與時長動態調整，短時段多卡片時需額外放大
+  const pxPerMin = computed(() => {
+    let required = 2
+    if (showSessions.value) {
+      required = Math.max(
+        required,
+        requiredPxPerMin(
+          filteredSessions.value,
+          s => String(s.eventId),
+          s => s.startTime,
+          s => s.endTime,
+        ),
+      )
+    }
+    if (showStages.value) {
+      required = Math.max(
+        required,
+        requiredPxPerMin(
+          filteredStages.value,
+          s => s.stage,
+          s => s.startTime,
+          s => s.endTime,
+        ),
+      )
+    }
+    return Math.min(MAX_PX_PER_MIN, required)
   })
+
+  const totalHeight = computed(
+    () => (HOUR_END - HOUR_START) * 60 * pxPerMin.value,
+  )
+  const hourMarks = Array.from(
+    { length: HOUR_END - HOUR_START + 1 },
+    (_, i) => HOUR_START + i,
+  )
+
+  function timeToMin(t: string): number {
+    if (!t) return NaN
+    const parts = t.split(':').map(Number)
+    return (parts[0] ?? 0) * 60 + (parts[1] ?? 0)
+  }
+
+  function topPx(startTime: string): number {
+    return (timeToMin(startTime) - DAY_START_MIN) * pxPerMin.value
+  }
+
+  function topPxFromHour(hour: number): number {
+    return (hour * 60 - DAY_START_MIN) * pxPerMin.value
+  }
+
+  interface WithLayout {
+    lane: number
+    numLanes: number
+    stackIndex: number
+    stackSize: number
+    stepH: number // 定位步進（自然均分，保證不溢出下一時段）
+    cardH: number // 渲染高度（至少 MIN_CARD_HEIGHT，確保文字可讀）
+  }
+
+  // 同時段場次垂直堆疊，不同時段有重疊時才水平分欄
+  // numLanes 依每個場次實際的最大同時併發數計算，不影響其他時段
+  function layoutSessions<T extends { startTime: string; endTime: string }>(
+    items: T[],
+  ): (T & WithLayout)[] {
+    if (items.length === 0) return []
+
+    // 依 startTime 分組（同時段一起堆疊）
+    const groups = new Map<string, T[]>()
+    for (const item of items) {
+      const g = groups.get(item.startTime) ?? []
+      g.push(item)
+      groups.set(item.startTime, g)
+    }
+
+    // 各組代表的時間資料（endTime 為空時給予最小高度對應的虛擬結束時間）
+    const virtualEnd = (startTime: string, endTime: string) => {
+      const raw = timeToMin(endTime)
+      return isNaN(raw)
+        ? timeToMin(startTime) + MIN_CARD_HEIGHT / pxPerMin.value
+        : raw
+    }
+    const reps = [...groups.values()].map(g => g[0]!)
+    const repData = reps.map((item, idx) => ({
+      idx,
+      start: timeToMin(item.startTime),
+      end: virtualEnd(item.startTime, item.endTime),
+    }))
+
+    // 貪婪 lane 分配（跨組的時間重疊才水平分欄）
+    const sorted = [...repData].sort((a, b) => a.start - b.start)
+    const laneEnds: number[] = []
+    const laneOf = new Map<number, number>()
+    for (const { idx, start, end } of sorted) {
+      let lane = laneEnds.findIndex(e => e <= start)
+      if (lane === -1) {
+        lane = laneEnds.length
+        laneEnds.push(0)
+      }
+      laneEnds[lane] = end
+      laneOf.set(idx, lane)
+    }
+
+    // 每個代表的 numLanes = 其存在期間的最大同時併發數
+    const numLanesOf = new Map<number, number>()
+    for (const r of repData) {
+      const checkPoints = new Set<number>([r.start])
+      for (const other of repData) {
+        if (other.start > r.start && other.start < r.end)
+          checkPoints.add(other.start)
+      }
+      let maxCount = 0
+      for (const t of checkPoints) {
+        const count = repData.filter(o => o.start <= t && o.end > t).length
+        maxCount = Math.max(maxCount, count)
+      }
+      numLanesOf.set(r.idx, maxCount)
+    }
+
+    // 展開：同組各 item 依結束時間升冪排（結束早→上，結束晚→下），再附上 layout 資訊
+    // cardH 以組為單位均分，避免 MIN_CARD_HEIGHT 膨脹後溢出到下一時段
+    const result: (T & WithLayout)[] = []
+    let groupIdx = 0
+    for (const group of groups.values()) {
+      const lane = laneOf.get(groupIdx) ?? 0
+      const numLanes = numLanesOf.get(groupIdx) ?? 1
+      const sorted = [...group].sort((a, b) => {
+        const ea = isNaN(timeToMin(a.endTime)) ? Infinity : timeToMin(a.endTime)
+        const eb = isNaN(timeToMin(b.endTime)) ? Infinity : timeToMin(b.endTime)
+        return ea - eb
+      })
+      const stackSize = sorted.length
+      const startMin = timeToMin(sorted[0]!.startTime)
+      const maxEndMin = Math.max(
+        ...sorted.map(item => virtualEnd(item.startTime, item.endTime)),
+      )
+      const naturalH = (maxEndMin - startMin) * pxPerMin.value
+      // 全部無 endTime 時，允許整疊往下展開至 stackSize × MIN_CARD_HEIGHT
+      const allNoEnd = sorted.every(item => !item.endTime)
+      const groupFullH = allNoEnd
+        ? Math.max(naturalH, stackSize * MIN_CARD_HEIGHT)
+        : naturalH
+      // stepH：定位步進，均分不超出時段；cardH：渲染高度，保證文字可讀
+      const stepH =
+        stackSize > 1
+          ? groupFullH / stackSize
+          : Math.max(groupFullH, MIN_CARD_HEIGHT)
+      const cardH = stackSize > 1 ? Math.max(stepH, MIN_CARD_HEIGHT) : stepH
+      sorted.forEach((item, stackIndex) => {
+        result.push({
+          ...item,
+          lane,
+          numLanes,
+          stackIndex,
+          stackSize,
+          stepH,
+          cardH,
+        })
+      })
+      groupIdx++
+    }
+    return result
+  }
+
+  // 每張卡片寬度固定為 BASE_COL_PX，left 以 px 絕對定位；欄位本身依最大併發數展寬
+  function cardStyle(s: {
+    startTime: string
+    lane: number
+    stackIndex: number
+    stepH: number
+    cardH: number
+  }): Record<string, string> {
+    const baseTop = topPx(s.startTime)
+    return {
+      top: `${baseTop + s.stackIndex * s.stepH}px`,
+      height: `${s.cardH - 2}px`, // 2px 視覺間隔
+      width: `${BASE_COL_PX}px`,
+      left: `${s.lane * BASE_COL_PX}px`,
+      zIndex: String(timeToMin(s.startTime) + s.stackIndex),
+    }
+  }
+
+  const stageItemsWithLanesCache = computed(() => {
+    const cache = new Map<string, (Stage & WithLayout)[]>()
+    for (const stageName of activeStageNames.value) {
+      cache.set(
+        stageName,
+        layoutSessions(filteredStages.value.filter(s => s.stage === stageName)),
+      )
+    }
+    return cache
+  })
+
+  function stageItemsWithLanes(stageName: string): (Stage & WithLayout)[] {
+    return stageItemsWithLanesCache.value.get(stageName) ?? []
+  }
+
+  // 欄位寬 = 該欄最大同時併發數 × BASE_COL_PX
+  function stageColWidth(stageName: string): number {
+    const items = stageItemsWithLanesCache.value.get(stageName) ?? []
+    return Math.max(1, ...items.map(s => s.numLanes)) * BASE_COL_PX
+  }
+
+  const sessionItemsWithLanesCache = computed(() => {
+    const cache = new Map<number, (Session & WithLayout)[]>()
+    for (const eid of activeEventIds.value) {
+      cache.set(
+        eid,
+        layoutSessions(filteredSessions.value.filter(s => s.eventId === eid)),
+      )
+    }
+    return cache
+  })
+
+  function sessionItemsWithLanes(eid: number): (Session & WithLayout)[] {
+    return sessionItemsWithLanesCache.value.get(eid) ?? []
+  }
+
+  function sessionColWidth(eid: number): number {
+    const items = sessionItemsWithLanesCache.value.get(eid) ?? []
+    return Math.max(1, ...items.map(s => s.numLanes)) * BASE_COL_PX
+  }
 
   function shortEventName(eventId: number): string {
     const name = eventNameMap.get(eventId) ?? String(eventId)
@@ -174,43 +404,6 @@
   function artistNames(s: Session): string {
     return s.artistIds.map(id => artistMap.get(id) ?? '').join('、')
   }
-
-  // 根據列（time）與欄（eid）的 hover 狀態決定儲存格背景
-  function cellBg(time: string, eid: number): string {
-    const row = hoveredTime.value === time
-    const col = hoveredEid.value === eid
-    if (row && col) return 'bg-white/10'
-    if (row || col) return 'bg-white/5'
-    return ''
-  }
-
-  function clearHover() {
-    hoveredTime.value = null
-    hoveredEid.value = null
-    hoveredStageName.value = null
-  }
-
-  watch(
-    [activeDate, query, showMySchedule, viewMode],
-    ([date, q, my, view]) => {
-      router.replace({
-        query: {
-          date,
-          ...(q ? { q } : {}),
-          ...(my ? { my: '1' } : {}),
-          ...(view !== 'all' ? { view } : {}),
-        },
-      })
-    },
-  )
-
-  // 從其他元件（如 StageModal）導航至此並帶入新 q 時，同步更新搜尋框
-  watch(
-    () => route.query.q,
-    q => {
-      query.value = (q as string) ?? ''
-    },
-  )
 
   function sessionCardClass(s: Session): string {
     return isFavorite(s.id)
@@ -246,13 +439,6 @@
     return hoveredStageName.value === stageName ? t.headerActive : t.header
   }
 
-  function stageCellBg(stageName: string, time: string): string {
-    const t = stageTheme(stageName)
-    const active =
-      hoveredStageName.value === stageName || hoveredTime.value === time
-    return active ? t.cellActive : t.cell
-  }
-
   function stageCardClass(s: Stage): string {
     if (isStageFavorite(s.id))
       return 'bg-accent/25 hover:bg-accent/40 text-white/90'
@@ -273,6 +459,34 @@
     viewMode.value = value
     viewModeOpen.value = false
   }
+
+  watch(
+    [activeDate, query, showMySchedule, viewMode],
+    ([date, q, my, view]) => {
+      router.replace({
+        query: {
+          date,
+          ...(q ? { q } : {}),
+          ...(my ? { my: '1' } : {}),
+          ...(view !== 'all' ? { view } : {}),
+        },
+      })
+    },
+  )
+
+  watch(
+    () => [route.query.date, route.query.q, route.query.my, route.query.view],
+    ([date, q, my, view]) => {
+      activeDate.value = validDates.includes(date as string)
+        ? (date as string)
+        : '2026/07/03'
+      query.value = (q as string) ?? ''
+      showMySchedule.value = my === '1'
+      viewMode.value = validViewModes.includes(view as ViewMode)
+        ? (view as ViewMode)
+        : 'all'
+    },
+  )
 </script>
 
 <template lang="pug">
@@ -343,81 +557,106 @@ div(class='min-h-screen')
               class='absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform duration-200',
               :class='showMySchedule ? "translate-x-4" : "translate-x-0.5"'
             )
-  //- 格線
+  //- 行事曆
   div(class='px-2 pt-2 pb-8 sm:px-6 sm:pt-4 sm:pb-12')
-    div(v-if='timeSlots.length' class='overflow-x-auto rounded-lg border border-white/8')
-      table(
-        class='min-w-max table-fixed border-collapse text-xs'
-        @mouseleave='clearHover'
-      )
-        thead
-          tr
-            th(
-              class='sticky left-0 z-20 w-10 border-r border-b border-white/8 bg-zinc-950 px-1.5 py-1 text-center text-xs font-normal text-white/40 sm:w-16 sm:px-3 sm:py-2'
-            ) 時間
-            template(v-if='showStages')
-              th(
-                v-for='stageName in activeStageNames',
-                :key='stageName'
-                class='w-20 border-r border-b border-white/8 px-1 py-1 text-center text-xs font-normal wrap-break-word transition-colors duration-150 sm:w-28 sm:px-2 sm:py-2',
-                :class='stageHeaderClass(stageName)'
-                @mouseenter='hoveredStageName = stageName'
-                @mouseleave='hoveredStageName = null'
-              ) {{ stageName }}
-            th(
-              v-for='eid in activeEventIds',
-              :key='eid',
-              :title='eventNameMap.get(eid)'
-              class='w-20 border-r border-b border-white/8 px-1 py-1 text-center text-xs leading-snug font-normal wrap-break-word transition-colors duration-150 sm:w-28 sm:px-2 sm:py-2',
-              :class='hoveredEid === eid ? "bg-zinc-800 text-white/90" : "bg-zinc-950 text-white/60"'
-              @mouseenter='hoveredEid = eid'
-              @mouseleave='hoveredEid = null'
-            ) {{ shortEventName(eid) }}
-        tbody
-          tr(
-            v-for='time in timeSlots',
-            :key='time'
-            @mouseenter='hoveredTime = time'
-            @mouseleave='hoveredTime = null'
+    p(v-if='!hasContent' class='py-8 text-center text-sm text-white/40') 找不到符合的場次
+    div(v-else class='overflow-x-auto rounded-lg border border-white/8')
+      div(class='flex min-w-max')
+        //- 時間軸（水平 sticky）
+        div(class='sticky left-0 z-20 w-10 shrink-0 bg-zinc-950 sm:w-14')
+          div(
+            class='flex h-16 items-center justify-center border-r border-b border-white/8'
           )
-            td(
-              class='sticky left-0 z-10 border-r border-b border-white/6 px-1.5 py-1 text-center font-mono text-white/50 transition-colors duration-150 sm:px-3 sm:py-1.5',
-              :class='hoveredTime === time ? "bg-zinc-800" : "bg-zinc-950"'
-            ) {{ time }}
-            template(v-if='showStages')
-              td(
-                v-for='stageName in activeStageNames',
-                :key='stageName'
-                class='overflow-hidden border-r border-b border-white/6 px-0.5 py-0.5 align-top transition-colors duration-150 sm:px-1.5 sm:py-1',
-                :class='stageCellBg(stageName, time)'
-                @mouseenter='hoveredStageName = stageName'
-                @mouseleave='hoveredStageName = null'
+            span(class='text-xs text-white/30') 時間
+          div(
+            class='relative border-r border-white/8',
+            :style='{ height: totalHeight + "px" }'
+          )
+            template(v-for='hour in hourMarks', :key='hour')
+              div(
+                class='absolute inset-x-0 border-t border-white/6',
+                :style='{ top: topPxFromHour(hour) + "px" }'
               )
-                template(v-if='stageGrid.get(stageName)?.get(time)')
+                span(
+                  class='block pt-0.5 pl-1 font-mono text-[10px] text-white/40 select-none sm:text-xs'
+                ) {{ String(hour).padStart(2, '0') }}:00
+        //- 各欄位
+        div(class='flex')
+          //- 舞台欄
+          template(v-if='showStages')
+            div(
+              v-for='stageName in activeStageNames',
+              :key='stageName'
+              class='shrink-0 border-r border-white/8',
+              :style='{ width: stageColWidth(stageName) + "px" }'
+              @mouseenter='hoveredStageName = stageName'
+              @mouseleave='hoveredStageName = null'
+            )
+              div(
+                class='flex h-16 items-center justify-center border-b border-white/8 px-1 py-2 text-center text-xs font-normal transition-colors duration-150',
+                :class='stageHeaderClass(stageName)'
+              )
+                span(class='line-clamp-4') {{ stageName }}
+              div(
+                class='relative isolate transition-colors duration-150',
+                :style='{ height: totalHeight + "px" }',
+                :class='hoveredStageName === stageName ? stageTheme(stageName).cellActive : stageTheme(stageName).cell'
+              )
+                template(v-for='hour in hourMarks', :key='hour')
                   div(
-                    v-for='s in stageGrid.get(stageName)?.get(time)',
-                    :key='s.id'
-                    @click='selectedStage = s'
-                    class='font-serif-tc mb-0.5 cursor-pointer rounded px-1.5 py-0.5 leading-snug wrap-break-word transition-colors duration-150',
-                    :class='stageCardClass(s)'
-                  ) {{ stageCardLabel(s) }}
-            td(
+                    class='pointer-events-none absolute inset-x-0 border-t border-white/6',
+                    :style='{ top: topPxFromHour(hour) + "px" }'
+                  )
+                div(
+                  v-for='s in stageItemsWithLanes(stageName)',
+                  :key='s.id'
+                  class='absolute box-border cursor-pointer p-0.5',
+                  :style='cardStyle(s)'
+                  @click='selectedStage = s'
+                )
+                  div(
+                    class='font-serif-tc h-full w-full overflow-hidden rounded px-1.5 py-1 text-xs leading-snug transition-colors duration-150',
+                    :class='[stageCardClass(s), s.stackIndex > 0 ? "border-t border-white/15" : ""]'
+                  )
+                    div(class='font-semibold') {{ stageCardLabel(s) }}
+          //- 活動場次欄
+          template(v-if='showSessions')
+            div(
               v-for='eid in activeEventIds',
               :key='eid'
-              class='overflow-hidden border-r border-b border-white/6 px-0.5 py-0.5 align-top transition-colors duration-150 sm:px-1.5 sm:py-1',
-              :class='cellBg(time, eid)'
+              class='shrink-0 border-r border-white/8',
+              :style='{ width: sessionColWidth(eid) + "px" }'
               @mouseenter='hoveredEid = eid'
               @mouseleave='hoveredEid = null'
             )
-              template(v-if='grid.get(time)?.get(eid)')
+              div(
+                class='flex h-16 items-center justify-center border-b border-white/8 px-1 py-2 text-center text-xs leading-snug font-normal transition-colors duration-150',
+                :class='hoveredEid === eid ? "bg-zinc-800 text-white/90" : "bg-zinc-950 text-white/60"',
+                :title='eventNameMap.get(eid)'
+              )
+                span(class='line-clamp-4') {{ shortEventName(eid) }}
+              div(
+                class='relative isolate transition-colors duration-150',
+                :style='{ height: totalHeight + "px" }',
+                :class='hoveredEid === eid ? "bg-zinc-900/50" : "bg-zinc-950/30"'
+              )
+                template(v-for='hour in hourMarks', :key='hour')
+                  div(
+                    class='pointer-events-none absolute inset-x-0 border-t border-white/6',
+                    :style='{ top: topPxFromHour(hour) + "px" }'
+                  )
                 div(
-                  v-for='s in grid.get(time)?.get(eid)',
+                  v-for='s in sessionItemsWithLanes(eid)',
                   :key='s.id'
+                  class='absolute box-border cursor-pointer p-0.5',
+                  :style='cardStyle(s)'
                   @click='selectedSession = s'
-                  class='font-serif-tc mb-0.5 cursor-pointer rounded px-1.5 py-0.5 leading-snug wrap-break-word text-white/90 transition-colors duration-150',
-                  :class='sessionCardClass(s)'
-                ) {{ artistNames(s) }}
-    p(v-else class='text-center text-sm text-white/40') 找不到符合的場次
+                )
+                  div(
+                    class='font-serif-tc h-full w-full overflow-hidden rounded px-1.5 py-1 text-xs leading-snug text-white/90 transition-colors duration-150',
+                    :class='[sessionCardClass(s), s.stackIndex > 0 ? "border-t border-white/15" : ""]'
+                  )
+                    div(class='font-semibold') {{ artistNames(s) }}
 
 SessionModal(:session='selectedSession' @close='selectedSession = null')
 StageModal(:stage='selectedStage' @close='selectedStage = null')

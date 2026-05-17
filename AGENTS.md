@@ -107,6 +107,22 @@ watch(
 - 若調整部署路徑、網域根目錄或靜態資源位置，請同步檢查 `vite.config.ts` 與相關連結設定
 - 若調整路由策略，請同步檢查 `src/router/index.ts` 與 GitHub Pages 部署行為是否一致
 
+## z-index 隔離
+
+使用絕對定位且 z-index 值較大的元素（例如以時間分鐘數作為 z-index 的行事曆卡片），需在其容器加上 `isolate` class，將堆疊情境限制在容器內，避免蓋過頁面層級的 sticky header 或 navbar：
+
+```pug
+div(class='relative isolate ...')
+  div(class='absolute ...', :style='{ zIndex: ... }')
+```
+
+## 行事曆密度
+
+場次／舞台行事曆若使用絕對定位堆疊卡片，高度縮放不可只依固定一小時基準估算；需依同一欄位、同一 `startTime` 的最大卡片數，搭配該組實際時長計算所需密度，否則短時段多場次會互相擠壓。
+
+- 縮放至少要考慮 `group size / duration`，避免 15 分鐘短場次沿用 60 分鐘密度
+- 需允許提高 `px/min` 上限，確保同時段多張卡片仍可讀
+
 ## NEVER
 
 - **不可在 Vue template / Pug 屬性字串中使用 TypeScript `!` 非空斷言**：`foo.bar!` 在 template 編譯後會產生 runtime `SyntaxError`。請改用 `v-if` guard 或 `?? fallback`
