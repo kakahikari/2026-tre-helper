@@ -11,6 +11,7 @@
   import StageModal from '@/components/StageModal.vue'
   import { useSessionFavorites } from '@/composables/useSessionFavorites'
   import { useStagesFavorites } from '@/composables/useStagesFavorites'
+  import { useFavorites } from '@/composables/useFavorites'
   import { useRoute, useRouter } from 'vue-router'
 
   const sessions = sessionsData as Session[]
@@ -32,6 +33,14 @@
   type ViewMode = 'all' | 'stage' | 'session'
   const validViewModes: ViewMode[] = ['all', 'stage', 'session']
 
+  const MY_FILTERS = [
+    { value: 'none' as const, label: '無' },
+    { value: 'artist' as const, label: '收藏女優' },
+    { value: 'schedule' as const, label: '我的行程' },
+  ]
+  type MyFilter = 'none' | 'artist' | 'schedule'
+  const validMyFilters: MyFilter[] = ['none', 'artist', 'schedule']
+
   const DAY_BUTTONS = [
     { date: '2026/07/03', label: '7/3（五）' },
     { date: '2026/07/04', label: '7/4（六）' },
@@ -48,7 +57,11 @@
   const selectedSession = ref<Session | null>(null)
   const hoveredEid = ref<number | null>(null)
   const hoveredStageName = ref<string | null>(null)
-  const showMySchedule = ref(route.query.my === '1')
+  const myFilter = ref<MyFilter>(
+    validMyFilters.includes(route.query.mf as MyFilter)
+      ? (route.query.mf as MyFilter)
+      : 'none',
+  )
   const viewMode = ref<ViewMode>(
     validViewModes.includes(route.query.view as ViewMode)
       ? (route.query.view as ViewMode)
@@ -64,19 +77,29 @@
     viewModeOpen.value = false
   })
 
+  const myFilterOpen = ref(false)
+  const myFilterRef = ref<HTMLElement | null>(null)
+  onClickOutside(myFilterRef, () => {
+    myFilterOpen.value = false
+  })
+
   const { isFavorite } = useSessionFavorites()
   const { isFavorite: isStageFavorite } = useStagesFavorites()
+  const { isFavorite: isArtistFavorite } = useFavorites()
 
   const selectedStage = ref<Stage | null>(null)
 
   const filteredStages = computed(() => {
     const base = stages.filter(s => s.date === activeDate.value)
-    const afterFavorite = showMySchedule.value
-      ? base.filter(s => isStageFavorite(s.id))
-      : base
+    const afterMy =
+      myFilter.value === 'schedule'
+        ? base.filter(s => isStageFavorite(s.id))
+        : myFilter.value === 'artist'
+          ? base.filter(s => s.artistIds.some(id => isArtistFavorite(id)))
+          : base
     const q = query.value.trim()
-    if (!q) return afterFavorite
-    return afterFavorite.filter(
+    if (!q) return afterMy
+    return afterMy.filter(
       s =>
         s.title.includes(q) ||
         s.stage.includes(q) ||
@@ -100,12 +123,15 @@
     const base = sessions.filter(
       s => s.date === activeDate.value && s.startTime !== '',
     )
-    const afterFavorite = showMySchedule.value
-      ? base.filter(s => isFavorite(s.id))
-      : base
+    const afterMy =
+      myFilter.value === 'schedule'
+        ? base.filter(s => isFavorite(s.id))
+        : myFilter.value === 'artist'
+          ? base.filter(s => s.artistIds.some(id => isArtistFavorite(id)))
+          : base
     const q = query.value.trim()
-    if (!q) return afterFavorite
-    return afterFavorite.filter(
+    if (!q) return afterMy
+    return afterMy.filter(
       s =>
         s.artistIds.some(id => (artistMap.get(id) ?? '').includes(q)) ||
         (eventNameMap.get(s.eventId) ?? '').includes(q),
@@ -460,28 +486,32 @@
     viewModeOpen.value = false
   }
 
-  watch(
-    [activeDate, query, showMySchedule, viewMode],
-    ([date, q, my, view]) => {
-      router.replace({
-        query: {
-          date,
-          ...(q ? { q } : {}),
-          ...(my ? { my: '1' } : {}),
-          ...(view !== 'all' ? { view } : {}),
-        },
-      })
-    },
-  )
+  function selectMyFilter(value: MyFilter) {
+    myFilter.value = value
+    myFilterOpen.value = false
+  }
+
+  watch([activeDate, query, myFilter, viewMode], ([date, q, mf, view]) => {
+    router.replace({
+      query: {
+        date,
+        ...(q ? { q } : {}),
+        ...(mf !== 'none' ? { mf } : {}),
+        ...(view !== 'all' ? { view } : {}),
+      },
+    })
+  })
 
   watch(
-    () => [route.query.date, route.query.q, route.query.my, route.query.view],
-    ([date, q, my, view]) => {
+    () => [route.query.date, route.query.q, route.query.mf, route.query.view],
+    ([date, q, mf, view]) => {
       activeDate.value = validDates.includes(date as string)
         ? (date as string)
         : '2026/07/03'
       query.value = (q as string) ?? ''
-      showMySchedule.value = my === '1'
+      myFilter.value = validMyFilters.includes(mf as MyFilter)
+        ? (mf as MyFilter)
+        : 'none'
       viewMode.value = validViewModes.includes(view as ViewMode)
         ? (view as ViewMode)
         : 'all'
@@ -508,12 +538,14 @@ div(class='min-h-screen')
           class='font-serif-tc flex-1 cursor-pointer rounded-lg border bg-transparent px-4 py-2 text-center text-sm tracking-wide transition-colors duration-200'
         ) {{ btn.label }}
       div(class='flex items-center justify-between gap-3')
-        div(class='flex items-center gap-2')
-          span(class='font-serif-tc shrink-0 text-sm tracking-wide text-white/40') 舞台/場次篩選
+        div(class='flex items-center gap-1 sm:gap-2')
+          span(
+            class='font-serif-tc shrink-0 text-xs tracking-wide text-white/40 sm:text-sm'
+          ) 舞台/場次篩選
           div(ref='viewModeRef' class='relative')
             button(
               @click='viewModeOpen = !viewModeOpen'
-              class='font-serif-tc flex min-w-25 cursor-pointer items-center justify-between gap-1.5 rounded-lg border border-white/20 bg-zinc-900 px-3 py-1.5 text-sm tracking-wide text-white/80 transition-colors duration-200 hover:border-white/40'
+              class='font-serif-tc flex w-23 cursor-pointer items-center justify-between gap-1 rounded-lg border border-white/20 bg-zinc-900 px-2 py-1.5 text-xs tracking-wide text-white/80 transition-colors duration-200 hover:border-white/40 sm:w-30 sm:gap-1.5 sm:px-3 sm:text-sm'
             )
               span {{ VIEW_MODES.find(m => m.value === viewMode)?.label }}
               svg(
@@ -541,22 +573,41 @@ div(class='min-h-screen')
                 class='font-serif-tc block w-full cursor-pointer px-4 py-2 text-left text-sm tracking-wide transition-colors duration-150 hover:bg-white/8',
                 :class='viewMode === m.value ? "text-white" : "text-white/60"'
               ) {{ m.label }}
-        div(
-          class='flex cursor-pointer items-center gap-2'
-          @click='showMySchedule = !showMySchedule'
-        )
+        div(class='flex items-center gap-1 sm:gap-2')
           span(
-            class='font-serif-tc text-sm tracking-wide transition-colors duration-200',
-            :class='showMySchedule ? "text-accent" : "text-white/40"'
-          ) 我的行程
-          div(
-            class='relative h-5 w-9 rounded-full transition-colors duration-200',
-            :class='showMySchedule ? "bg-accent" : "bg-white/15"'
-          )
-            div(
-              class='absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform duration-200',
-              :class='showMySchedule ? "translate-x-4" : "translate-x-0.5"'
+            class='font-serif-tc shrink-0 text-xs tracking-wide text-white/40 sm:text-sm'
+          ) 我的篩選
+          div(ref='myFilterRef' class='relative')
+            button(
+              @click='myFilterOpen = !myFilterOpen'
+              class='font-serif-tc flex w-23 cursor-pointer items-center justify-between gap-1 rounded-lg border border-white/20 bg-zinc-900 px-2 py-1.5 text-xs tracking-wide text-white/80 transition-colors duration-200 hover:border-white/40 sm:w-30 sm:gap-1.5 sm:px-3 sm:text-sm'
             )
+              span {{ MY_FILTERS.find(m => m.value === myFilter)?.label }}
+              svg(
+                xmlns='http://www.w3.org/2000/svg'
+                width='12'
+                height='12'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                stroke-width='2'
+                stroke-linecap='round'
+                stroke-linejoin='round',
+                :class='myFilterOpen ? "rotate-180" : ""'
+                class='transition-transform duration-200'
+              )
+                path(d='m6 9 6 6 6-6')
+            div(
+              v-if='myFilterOpen'
+              class='absolute top-full right-0 z-30 mt-1 min-w-full overflow-hidden rounded-lg border border-white/12 bg-zinc-900 shadow-lg'
+            )
+              button(
+                v-for='m in MY_FILTERS',
+                :key='m.value'
+                @click='selectMyFilter(m.value)'
+                class='font-serif-tc block w-full cursor-pointer px-4 py-2 text-left text-sm tracking-wide transition-colors duration-150 hover:bg-white/8',
+                :class='myFilter === m.value ? "text-white" : "text-white/60"'
+              ) {{ m.label }}
   //- 行事曆
   div(class='px-2 pt-2 pb-8 sm:px-6 sm:pt-4 sm:pb-12')
     p(v-if='!hasContent' class='py-8 text-center text-sm text-white/40') 找不到符合的場次
