@@ -127,3 +127,4 @@ div(class='relative isolate ...')
 
 - **不可在 Vue template / Pug 屬性字串中使用 TypeScript `!` 非空斷言**：`foo.bar!` 在 template 編譯後會產生 runtime `SyntaxError`。請改用 `v-if` guard 或 `?? fallback`
 - **不可直接操作 `window.localStorage`**：請使用 VueUse 的 `useLocalStorage`
+- **不可在 `overflow-x-auto` 容器上用 `flex justify-center` 置中**：內容超出容器時左側不可達，無法向左捲動。請改用 `w-max mx-auto` 在子元素上置中

@@ -612,102 +612,103 @@ div(class='min-h-screen')
   div(class='px-2 pt-2 pb-8 sm:px-6 sm:pt-4 sm:pb-12')
     p(v-if='!hasContent' class='py-8 text-center text-sm text-white/40') 找不到符合的場次
     div(v-else class='overflow-x-auto rounded-lg border border-white/8')
-      div(class='flex min-w-max')
-        //- 時間軸（水平 sticky）
-        div(class='sticky left-0 z-20 w-10 shrink-0 bg-zinc-950 sm:w-14')
-          div(
-            class='flex h-16 items-center justify-center border-r border-b border-white/8'
-          )
-            span(class='text-xs text-white/30') 時間
-          div(
-            class='relative border-r border-white/8',
-            :style='{ height: totalHeight + "px" }'
-          )
-            template(v-for='hour in hourMarks', :key='hour')
-              div(
-                class='absolute inset-x-0 border-t border-white/6',
-                :style='{ top: topPxFromHour(hour) + "px" }'
-              )
-                span(
-                  class='block pt-0.5 pl-1 font-mono text-[10px] text-white/40 select-none sm:text-xs'
-                ) {{ String(hour).padStart(2, '0') }}:00
-        //- 各欄位
+      div(class='mx-auto w-max')
         div(class='flex')
-          //- 舞台欄
-          template(v-if='showStages')
+          //- 時間軸（水平 sticky）
+          div(class='sticky left-0 z-20 w-10 shrink-0 bg-zinc-950 sm:w-14')
             div(
-              v-for='stageName in activeStageNames',
-              :key='stageName'
-              class='shrink-0 border-r border-white/8',
-              :style='{ width: stageColWidth(stageName) + "px" }'
-              @mouseenter='hoveredStageName = stageName'
-              @mouseleave='hoveredStageName = null'
+              class='flex h-16 items-center justify-center border-r border-b border-white/8'
             )
-              div(
-                class='flex h-16 items-center justify-center border-b border-white/8 px-1 py-2 text-center text-xs font-normal transition-colors duration-150',
-                :class='stageHeaderClass(stageName)'
-              )
-                span(class='line-clamp-4') {{ stageName }}
-              div(
-                class='relative isolate transition-colors duration-150',
-                :style='{ height: totalHeight + "px" }',
-                :class='hoveredStageName === stageName ? stageTheme(stageName).cellActive : stageTheme(stageName).cell'
-              )
-                template(v-for='hour in hourMarks', :key='hour')
-                  div(
-                    class='pointer-events-none absolute inset-x-0 border-t border-white/6',
-                    :style='{ top: topPxFromHour(hour) + "px" }'
-                  )
-                div(
-                  v-for='s in stageItemsWithLanes(stageName)',
-                  :key='s.id'
-                  class='absolute box-border cursor-pointer p-0.5',
-                  :style='cardStyle(s)'
-                  @click='selectedStage = s'
-                )
-                  div(
-                    class='font-serif-tc h-full w-full overflow-hidden rounded px-1.5 py-1 text-xs leading-snug transition-colors duration-150',
-                    :class='[stageCardClass(s), s.stackIndex > 0 ? "border-t border-white/15" : ""]'
-                  )
-                    div(class='font-semibold') {{ stageCardLabel(s) }}
-          //- 活動場次欄
-          template(v-if='showSessions')
+              span(class='text-xs text-white/30') 時間
             div(
-              v-for='eid in activeEventIds',
-              :key='eid'
-              class='shrink-0 border-r border-white/8',
-              :style='{ width: sessionColWidth(eid) + "px" }'
-              @mouseenter='hoveredEid = eid'
-              @mouseleave='hoveredEid = null'
+              class='relative border-r border-white/8',
+              :style='{ height: totalHeight + "px" }'
             )
-              div(
-                class='flex h-16 items-center justify-center border-b border-white/8 px-1 py-2 text-center text-xs leading-snug font-normal transition-colors duration-150',
-                :class='hoveredEid === eid ? "bg-zinc-800 text-white/90" : "bg-zinc-950 text-white/60"',
-                :title='eventNameMap.get(eid)'
-              )
-                span(class='line-clamp-4') {{ shortEventName(eid) }}
-              div(
-                class='relative isolate transition-colors duration-150',
-                :style='{ height: totalHeight + "px" }',
-                :class='hoveredEid === eid ? "bg-zinc-900/50" : "bg-zinc-950/30"'
-              )
-                template(v-for='hour in hourMarks', :key='hour')
-                  div(
-                    class='pointer-events-none absolute inset-x-0 border-t border-white/6',
-                    :style='{ top: topPxFromHour(hour) + "px" }'
-                  )
+              template(v-for='hour in hourMarks', :key='hour')
                 div(
-                  v-for='s in sessionItemsWithLanes(eid)',
-                  :key='s.id'
-                  class='absolute box-border cursor-pointer p-0.5',
-                  :style='cardStyle(s)'
-                  @click='selectedSession = s'
+                  class='absolute inset-x-0 border-t border-white/6',
+                  :style='{ top: topPxFromHour(hour) + "px" }'
                 )
+                  span(
+                    class='block pt-0.5 pl-1 font-mono text-[10px] text-white/40 select-none sm:text-xs'
+                  ) {{ String(hour).padStart(2, '0') }}:00
+          //- 各欄位
+          div(class='flex')
+            //- 舞台欄
+            template(v-if='showStages')
+              div(
+                v-for='stageName in activeStageNames',
+                :key='stageName'
+                class='shrink-0 border-r border-white/8',
+                :style='{ width: stageColWidth(stageName) + "px" }'
+                @mouseenter='hoveredStageName = stageName'
+                @mouseleave='hoveredStageName = null'
+              )
+                div(
+                  class='flex h-16 items-center justify-center border-b border-white/8 px-1 py-2 text-center text-xs font-normal transition-colors duration-150',
+                  :class='stageHeaderClass(stageName)'
+                )
+                  span(class='line-clamp-4') {{ stageName }}
+                div(
+                  class='relative isolate transition-colors duration-150',
+                  :style='{ height: totalHeight + "px" }',
+                  :class='hoveredStageName === stageName ? stageTheme(stageName).cellActive : stageTheme(stageName).cell'
+                )
+                  template(v-for='hour in hourMarks', :key='hour')
+                    div(
+                      class='pointer-events-none absolute inset-x-0 border-t border-white/6',
+                      :style='{ top: topPxFromHour(hour) + "px" }'
+                    )
                   div(
-                    class='font-serif-tc h-full w-full overflow-hidden rounded px-1.5 py-1 text-xs leading-snug text-white/90 transition-colors duration-150',
-                    :class='[sessionCardClass(s), s.stackIndex > 0 ? "border-t border-white/15" : ""]'
+                    v-for='s in stageItemsWithLanes(stageName)',
+                    :key='s.id'
+                    class='absolute box-border cursor-pointer p-0.5',
+                    :style='cardStyle(s)'
+                    @click='selectedStage = s'
                   )
-                    div(class='font-semibold') {{ artistNames(s) }}
+                    div(
+                      class='font-serif-tc h-full w-full overflow-hidden rounded px-1.5 py-1 text-xs leading-snug transition-colors duration-150',
+                      :class='[stageCardClass(s), s.stackIndex > 0 ? "border-t border-white/15" : ""]'
+                    )
+                      div(class='font-semibold') {{ stageCardLabel(s) }}
+            //- 活動場次欄
+            template(v-if='showSessions')
+              div(
+                v-for='eid in activeEventIds',
+                :key='eid'
+                class='shrink-0 border-r border-white/8',
+                :style='{ width: sessionColWidth(eid) + "px" }'
+                @mouseenter='hoveredEid = eid'
+                @mouseleave='hoveredEid = null'
+              )
+                div(
+                  class='flex h-16 items-center justify-center border-b border-white/8 px-1 py-2 text-center text-xs leading-snug font-normal transition-colors duration-150',
+                  :class='hoveredEid === eid ? "bg-zinc-800 text-white/90" : "bg-zinc-950 text-white/60"',
+                  :title='eventNameMap.get(eid)'
+                )
+                  span(class='line-clamp-4') {{ shortEventName(eid) }}
+                div(
+                  class='relative isolate transition-colors duration-150',
+                  :style='{ height: totalHeight + "px" }',
+                  :class='hoveredEid === eid ? "bg-zinc-900/50" : "bg-zinc-950/30"'
+                )
+                  template(v-for='hour in hourMarks', :key='hour')
+                    div(
+                      class='pointer-events-none absolute inset-x-0 border-t border-white/6',
+                      :style='{ top: topPxFromHour(hour) + "px" }'
+                    )
+                  div(
+                    v-for='s in sessionItemsWithLanes(eid)',
+                    :key='s.id'
+                    class='absolute box-border cursor-pointer p-0.5',
+                    :style='cardStyle(s)'
+                    @click='selectedSession = s'
+                  )
+                    div(
+                      class='font-serif-tc h-full w-full overflow-hidden rounded px-1.5 py-1 text-xs leading-snug text-white/90 transition-colors duration-150',
+                      :class='[sessionCardClass(s), s.stackIndex > 0 ? "border-t border-white/15" : ""]'
+                    )
+                      div(class='font-semibold') {{ artistNames(s) }}
 
 SessionModal(:session='selectedSession' @close='selectedSession = null')
 StageModal(:stage='selectedStage' @close='selectedStage = null')
