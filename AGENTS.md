@@ -27,7 +27,33 @@ pnpm build        # 型別檢查 + 編譯打包
 pnpm lint         # ESLint、Prettier、sort-package-json
 pnpm type-check   # 僅型別檢查
 pnpm preview      # 預覽打包結果
+pnpm run fetch    # 一鍵更新所有資料（artists → events → sessions）
 ```
+
+## 資料更新腳本
+
+資料檔案（`src/data/`）透過三支 Node.js 腳本從 JKFace gRPC-Web API 抓取。
+
+### 執行順序（有相依性，不可並行）
+
+```
+fetch:artists → fetch:events → fetch:sessions
+```
+
+使用 `pnpm run fetch` 會依正確順序循序執行全部三步。
+
+### 各腳本職責
+
+| 腳本             | 更新檔案                      | 說明                                                                                                     |
+| ---------------- | ----------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `fetch:artists`  | `artists.json`                | GetCollectionPageLineupInfo → 集合頁陣容女優                                                             |
+| `fetch:events`   | `events.json`、`artists.json` | GetActivityLineup → 各活動女優；**同時**將 GetActivityLineup 發現但不在集合頁的新女優補入 `artists.json` |
+| `fetch:sessions` | `sessions.json`               | GetReserveInfo → 各活動場次；依賴最新的 `artists.json` 進行名稱對照                                      |
+
+### 注意事項
+
+- 單獨執行 `fetch:sessions` 前，必須先確保 `artists.json` 已是最新狀態（先跑前兩步）
+- `fetch:events` 只「補入」新女優，不會刪除 `fetch:artists` 已寫入的女優
 
 ## 開發慣例
 

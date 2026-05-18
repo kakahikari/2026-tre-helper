@@ -80,10 +80,11 @@ async function fetchLineupIds() {
   )
   const buf = new Uint8Array(await resp.arrayBuffer())
 
-  // 在整個 response 中搜尋所有 field 19 (tag = 9a 01, wire type 2 = LEN)，
-  // 找到內容全為合理 lineup ID（100–2000）的那個 packed repeated varint 欄位
+  // 在整個 response 中搜尋 field 17 (tag = 8a 01, wire type 2 = LEN)，
+  // field 17 是完整的 2026 TRE lineup ID 列表（355–450 連續區段）。
+  // 注意：field 19 (9a 01) 是不完整的子集，會漏掉部分女優（如 lineupId 428 仁美）。
   for (let i = 5; i < buf.length - 3; i++) {
-    if (buf[i] !== 0x9a || buf[i + 1] !== 0x01) continue
+    if (buf[i] !== 0x8a || buf[i + 1] !== 0x01) continue
 
     const lr = readVarint(buf, i + 2)
     const dataStart = lr.pos
@@ -107,7 +108,7 @@ async function fetchLineupIds() {
     if (valid && ids.length >= 3) return ids
   }
   throw new Error(
-    'Field 19 (lineup IDs) not found in GetCollectionPageInfo response',
+    'Field 17 (lineup IDs) not found in GetCollectionPageInfo response',
   )
 }
 

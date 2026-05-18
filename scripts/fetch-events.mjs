@@ -14,6 +14,7 @@ import { dirname, join } from 'node:path'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const EVENTS_FILE = join(__dirname, '../src/data/events.json')
+const ARTISTS_FILE = join(__dirname, '../src/data/artists.json')
 const GAPI = 'https://face-front-api.hare200.com/gapi'
 const COLLECTION_ID = 4
 
@@ -176,29 +177,35 @@ async function fetchActivityLineup(activityId) {
   const buf = new Uint8Array(await resp.arrayBuffer())
 
   const artistIds = []
+  const artists = []
   const seenArtistIds = new Set()
   // response: field 2 = { field1: actId, field2: repeated lineupItems }
   for (const f of parseMessage(buf.slice(5))) {
     if (f.fn !== 2 || f.wt !== 2) continue
     for (const of_ of parseMessage(f.bytes)) {
       if (of_.fn !== 2 || of_.wt !== 2) continue
-      // lineup item: field 10 = profileUrl → extract artistId
+      // lineup item: field6 = name, field10 = profileUrl → extract artistId
+      let name = '',
+        url = ''
       for (const lf of parseMessage(of_.bytes)) {
-        if (lf.fn !== 10 || lf.wt !== 2) continue
-        const url = Buffer.from(lf.bytes).toString('utf8')
-        const match = url.match(/\/profile\/(\d+)/)
-        if (!match) continue
+        if (lf.fn === 6 && lf.wt === 2)
+          name = Buffer.from(lf.bytes).toString('utf8')
+        if (lf.fn === 10 && lf.wt === 2)
+          url = Buffer.from(lf.bytes).toString('utf8')
+      }
+      const match = url.match(/\/profile\/(\d+)/)
+      if (!match) continue
 
-        const artistId = Number(match[1])
-        if (!seenArtistIds.has(artistId)) {
-          seenArtistIds.add(artistId)
-          artistIds.push(artistId)
-        }
+      const artistId = Number(match[1])
+      if (!seenArtistIds.has(artistId)) {
+        seenArtistIds.add(artistId)
+        artistIds.push(artistId)
+        if (name) artists.push({ id: artistId, name })
       }
     }
   }
 
-  return artistIds
+  return { artistIds, artists }
 }
 
 // ── Main ─────────────────────────────────────────────────────────────────────
@@ -222,11 +229,30 @@ if (activities.length === 0) {
 }
 
 const result = []
+const allLineupArtists = []
 for (const act of activities) {
-  const artistIds = await fetchActivityLineup(act.id)
+  const { artistIds, artists } = await fetchActivityLineup(act.id)
   result.push({ ...act, artistIds })
+  allLineupArtists.push(...artists)
   console.log(`  Activity ${act.id} "${act.name}": ${artistIds.length} artists`)
 }
+
+// 合併 GetActivityLineup 取得的女優到 artists.json
+const existingArtists = JSON.parse(readFileSync(ARTISTS_FILE, 'utf-8'))
+const artistById = new Map(existingArtists.map(a => [a.id, a]))
+for (const a of allLineupArtists) {
+  if (!artistById.has(a.id)) artistById.set(a.id, a)
+}
+const nextArtists = [...artistById.values()].sort((a, b) => a.id - b.id)
+const addedArtists = nextArtists.filter(
+  a => !existingArtists.some(e => e.id === a.id),
+)
+writeFileSync(ARTISTS_FILE, stableStringify(nextArtists) + '\n')
+if (addedArtists.length > 0)
+  console.log(
+    `\nStep 3b: Added ${addedArtists.length} new artists to artists.json:`,
+    addedArtists.map(a => a.name).join('、'),
+  )
 
 const existing = JSON.parse(readFileSync(EVENTS_FILE, 'utf-8'))
 const nextEvents = [...new Map(result.map(e => [e.id, e])).values()].sort(

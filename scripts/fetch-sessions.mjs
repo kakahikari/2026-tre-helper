@@ -183,6 +183,16 @@ function parseReserveName(title, artistLookup) {
       artistNames: extractArtistNames(fE[4], artistLookup),
     }
 
+  // G: YYYY/MM/DD（有斜線，無時間，e.g. "2026/07/03【LV.1 專屬女神拍】 西野繪美"）
+  const fG = title.match(/^(\d{4}\/\d{2}\/\d{2})\s*(.+)$/)
+  if (fG)
+    return {
+      date: fG[1],
+      startTime: '',
+      endTime: '',
+      artistNames: extractArtistNames(fG[2], artistLookup),
+    }
+
   // B/C: M/D HH:mm-HH:mm（短日期，日期與時間間允許無空格）
   const fBC = title.match(
     /^(\d{1,2})\/(\d{1,2})\s*(\d{2}:\d{2})-(\d{2}:\d{2})\s*(.+)$/,
@@ -209,6 +219,10 @@ function parseReserveName(title, artistLookup) {
     }
 
   return { date: '', startTime: '', endTime: '', artistNames: [] }
+}
+
+function normalizeStartTime(result) {
+  return { ...result, startTime: result.startTime || '09:00' }
 }
 
 // ── GetReserveInfo → sessions ────────────────────────────────────────────────
@@ -256,9 +270,8 @@ for (const event of events) {
   console.log(`Event ${event.id} "${event.name}": ${raw.length} sessions`)
 
   for (const { id, title } of raw) {
-    const { date, startTime, endTime, artistNames } = parseReserveName(
-      title,
-      artistLookup,
+    const { date, startTime, endTime, artistNames } = normalizeStartTime(
+      parseReserveName(title, artistLookup),
     )
     if (!date) {
       unparsedSessions.push({ id, eventId: event.id, title })
