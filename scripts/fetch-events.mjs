@@ -238,15 +238,19 @@ for (const act of activities) {
 }
 
 // 合併 GetActivityLineup 取得的女優到 artists.json
+// 保留現有順序（GetCollectionPageLineupInfo 在前），新增女優依 ID 排序後補在尾端
 const existingArtists = JSON.parse(readFileSync(ARTISTS_FILE, 'utf-8'))
-const artistById = new Map(existingArtists.map(a => [a.id, a]))
+const existingIds = new Set(existingArtists.map(a => a.id))
+const seenNewIds = new Set()
+const addedArtists = []
 for (const a of allLineupArtists) {
-  if (!artistById.has(a.id)) artistById.set(a.id, a)
+  if (!existingIds.has(a.id) && !seenNewIds.has(a.id)) {
+    seenNewIds.add(a.id)
+    addedArtists.push(a)
+  }
 }
-const nextArtists = [...artistById.values()].sort((a, b) => a.id - b.id)
-const addedArtists = nextArtists.filter(
-  a => !existingArtists.some(e => e.id === a.id),
-)
+addedArtists.sort((a, b) => a.id - b.id)
+const nextArtists = [...existingArtists, ...addedArtists]
 writeFileSync(ARTISTS_FILE, stableStringify(nextArtists) + '\n')
 if (addedArtists.length > 0)
   console.log(

@@ -196,7 +196,7 @@ function parseLineupItem(buf) {
 function dedupeArtists(items) {
   const byId = new Map()
   for (const item of items) byId.set(item.id, item)
-  return [...byId.values()].sort((a, b) => a.id - b.id)
+  return [...byId.values()] // preserve API order
 }
 
 // ── Main ────────────────────────────────────────────────────────────────────
