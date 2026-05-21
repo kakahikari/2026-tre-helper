@@ -5,6 +5,7 @@ import { defineConfig, type Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import tailwindcss from '@tailwindcss/vite'
+import { VitePWA } from 'vite-plugin-pwa'
 
 function injectGoogleAnalytics(): Plugin {
   const googleAnalyticsId = process.env.VITE_GOOGLE_ANALYTICS_ID?.trim()
@@ -54,6 +55,42 @@ export default defineConfig({
     tailwindcss(),
     injectGoogleAnalytics(),
     generateDiscountRoute(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2,json}'],
+        navigateFallback: '/2026-tre-helper/index.html',
+        navigateFallbackDenylist: [/\/discount/],
+      },
+      manifest: {
+        name: '2026 TRE 活動小工具',
+        short_name: 'TRE 2026',
+        description: '2026 台北國際紅人展場次行事曆、女優陣容與攤位資訊',
+        theme_color: '#e8003a',
+        background_color: '#1a1a2e',
+        display: 'standalone',
+        scope: '/2026-tre-helper/',
+        start_url: '/2026-tre-helper/',
+        icons: [
+          {
+            src: 'pwa-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+          },
+          {
+            src: 'pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+          },
+          {
+            src: 'maskable-icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
+          },
+        ],
+      },
+    }),
   ],
   build: {
     rollupOptions: {
