@@ -686,14 +686,14 @@ div(class='min-h-screen')
               )
                 div(
                   class='flex h-16 items-center justify-center border-b border-white/8 px-1 py-2 text-center text-xs leading-snug font-normal transition-colors duration-150',
-                  :class='hoveredEid === eid ? "bg-zinc-800 text-white/90" : "bg-zinc-950 text-white/60"',
+                  :class='hoveredEid === eid ? "bg-zinc-600/90 text-white" : "bg-zinc-950 text-white/60"',
                   :title='eventNameMap.get(eid)'
                 )
                   span(class='line-clamp-4') {{ shortEventName(eid) }}
                 div(
                   class='relative isolate transition-colors duration-150',
                   :style='{ height: totalHeight + "px" }',
-                  :class='hoveredEid === eid ? "bg-zinc-900/50" : "bg-zinc-950/30"'
+                  :class='hoveredEid === eid ? "bg-zinc-800/70" : "bg-zinc-950/30"'
                 )
                   template(v-for='hour in hourMarks', :key='hour')
                     div(
