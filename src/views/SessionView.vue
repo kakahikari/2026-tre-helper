@@ -611,7 +611,10 @@ div(class='min-h-screen')
   //- 行事曆
   div(class='px-2 pt-2 pb-8 sm:px-6 sm:pt-4 sm:pb-12')
     p(v-if='!hasContent' class='py-8 text-center text-sm text-white/40') 找不到符合的場次
-    div(v-else class='overflow-x-auto rounded-lg border border-white/8')
+    div(
+      v-else
+      class='overflow-x-auto overflow-y-clip overscroll-x-contain rounded-lg border border-white/8'
+    )
       div(class='mx-auto w-max')
         div(class='flex')
           //- 時間軸（水平 sticky）
