@@ -67,7 +67,7 @@ export default defineConfig({
         short_name: 'TRE 2026',
         description: '2026 台北國際紅人展場次行事曆、女優陣容與攤位資訊',
         theme_color: '#e8003a',
-        background_color: '#1a1a2e',
+        background_color: '#000000',
         display: 'standalone',
         scope: '/2026-tre-helper/',
         start_url: '/2026-tre-helper/',
