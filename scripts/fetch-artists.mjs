@@ -176,7 +176,9 @@ function parseLineupItem(buf) {
     } else if (wireType === 2) {
       const lr = readVarint(buf, pos)
       pos = lr.pos
-      const text = Buffer.from(buf.slice(pos, pos + lr.val)).toString('utf8')
+      const text = Buffer.from(buf.slice(pos, pos + lr.val))
+        .toString('utf8')
+        .trim()
       pos += lr.val
       if (fieldNum === 6) name = text // 名稱
       if (fieldNum === 10) profileUrl = text // profile URL

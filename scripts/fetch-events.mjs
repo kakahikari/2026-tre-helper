@@ -189,9 +189,9 @@ async function fetchActivityLineup(activityId) {
         url = ''
       for (const lf of parseMessage(of_.bytes)) {
         if (lf.fn === 6 && lf.wt === 2)
-          name = Buffer.from(lf.bytes).toString('utf8')
+          name = Buffer.from(lf.bytes).toString('utf8').trim()
         if (lf.fn === 10 && lf.wt === 2)
-          url = Buffer.from(lf.bytes).toString('utf8')
+          url = Buffer.from(lf.bytes).toString('utf8').trim()
       }
       const match = url.match(/\/profile\/(\d+)/)
       if (!match) continue

@@ -244,7 +244,7 @@ async function fetchReserveInfo(activityId) {
     for (const sf of parseMessage(f.bytes)) {
       if (sf.fn === 1 && sf.wt === 0) id = sf.val
       if (sf.fn === 2 && sf.wt === 2)
-        title = Buffer.from(sf.bytes).toString('utf8')
+        title = Buffer.from(sf.bytes).toString('utf8').trim()
     }
     if (id && title) sessions.push({ id, title })
   }
