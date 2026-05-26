@@ -35,6 +35,9 @@
       icon: githubIcon,
     },
   ]
+
+  const version = __APP_VERSION__
+  const buildDate = __BUILD_TIME__.replace(/-/g, '/')
 </script>
 
 <template lang="pug">
@@ -108,4 +111,5 @@ teleport(to='body')
         )
           span(v-if='link.icon' v-html='link.icon')
           span {{ link.label }}
+        p(class='font-serif-tc text-[10px] tracking-widest text-white/60') v{{ version }} · {{ buildDate }}
 </template>

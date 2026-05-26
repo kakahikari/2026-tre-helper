@@ -1,5 +1,9 @@
 import { fileURLToPath, URL } from 'node:url'
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
+
+const require = createRequire(import.meta.url)
+const pkg = require('./package.json') as { version: string }
 
 import { defineConfig, type Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
@@ -49,6 +53,14 @@ function generateDiscountRoute(): Plugin {
 // https://vite.dev/config/
 export default defineConfig({
   base: '/2026-tre-helper/',
+  define: {
+    __APP_VERSION__: JSON.stringify(pkg.version),
+    __BUILD_TIME__: JSON.stringify(
+      new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Taipei' }).format(
+        new Date(),
+      ),
+    ),
+  },
   plugins: [
     vue(),
     vueDevTools(),
